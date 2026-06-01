@@ -2,363 +2,580 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AKNet Cashier</title>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg:#020b08; --surface:#0a1a12; --surface2:#0f2318;
-    --border:#1a4a2e; --accent:#00ff88; --accent2:#ff6b00;
-    --gold:#ffd700; --cyan:#00d4ff; --red:#ff3355;
-    --orange:#ff8800; --text:#e0fff0; --muted:#3a7a55;
-    --glow:0 0 20px rgba(0,255,136,0.4);
-  }
-  *{margin:0;padding:0;box-sizing:border-box;}
-  body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;height:100vh;display:flex;flex-direction:column;overflow:hidden;-webkit-app-region:no-drag;}
-  body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,255,136,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,136,0.02) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+:root{
+  --bg:#020b08;--surface:#0a1a12;--surface2:#0f2318;--border:#1a4a2e;
+  --accent:#00ff88;--gold:#f5a800;--cyan:#00d4ff;--red:#ff3355;
+  --orange:#ff8800;--text:#e0fff0;--muted:#3a7a55;
+  --glow:0 0 20px rgba(0,255,136,.4);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;height:100vh;display:flex;flex-direction:column;overflow:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,255,136,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,136,.02) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
 
-  /* TITLE BAR */
-  .titlebar{-webkit-app-region:drag;height:36px;background:linear-gradient(90deg,#020b08,#061a0e 50%,#020b08);border-bottom:1px solid #0f2318;display:flex;align-items:center;padding:0 16px;justify-content:space-between;flex-shrink:0;}
-  .titlebar-title{font-family:'Orbitron',monospace;font-size:12px;color:var(--muted);letter-spacing:3px;}
-  .titlebar-right{-webkit-app-region:no-drag;display:flex;gap:4px;}
-  .tb-btn{width:24px;height:24px;border-radius:50%;border:none;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;transition:opacity 0.2s;}
-  .tb-min{background:#ffd700;color:#000;} .tb-max{background:#00ff88;color:#000;} .tb-close{background:#ff3355;color:#fff;}
-  .tb-btn:hover{opacity:0.8;}
+/* HEADER */
+.header{background:linear-gradient(90deg,#020b08,#061a0e 50%,#020b08);border-bottom:2px solid var(--accent);box-shadow:var(--glow);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:relative;z-index:10;}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:22px;font-weight:900;color:var(--accent);text-shadow:var(--glow);letter-spacing:3px;}
+.logo span{color:var(--gold);}
+.server-info{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:5px 12px;font-size:11px;letter-spacing:1px;}
+.server-ip{color:var(--cyan);font-family:'Bebas Neue',sans-serif;font-weight:700;font-size:14px;}
+.header-stats{display:flex;gap:14px;align-items:center;}
+.stat-item{text-align:center;}
+.stat-num{font-family:'Bebas Neue',sans-serif;font-size:20px;font-weight:900;line-height:1;}
+.stat-lbl{font-size:9px;color:var(--muted);letter-spacing:1px;}
+.stat-p .stat-num{color:var(--orange);}
+.stat-pr .stat-num{color:var(--cyan);}
+.stat-d .stat-num{color:var(--accent);}
+.live-dot{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--accent);}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:pulse 1.5s infinite;box-shadow:0 0 8px var(--accent);}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+.hdr-btn{border:1px solid var(--border);background:var(--surface);border-radius:8px;padding:5px 12px;color:var(--muted);font-size:11px;cursor:pointer;transition:all .2s;font-family:'Nunito',sans-serif;font-weight:700;letter-spacing:1px;}
+.hdr-btn:hover{border-color:var(--accent);color:var(--accent);}
+.hdr-btn.danger:hover{border-color:var(--red);color:var(--red);}
 
-  /* HEADER */
-  .header{background:linear-gradient(90deg,#020b08,#061a0e 50%,#020b08);border-bottom:2px solid var(--accent);box-shadow:var(--glow);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:relative;z-index:10;}
-  .logo{font-family:'Orbitron',monospace;font-size:22px;font-weight:900;color:var(--accent);text-shadow:var(--glow);letter-spacing:3px;}
-  .logo span{color:var(--accent2);}
-  .server-info{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:6px 14px;font-size:12px;letter-spacing:1px;}
-  .server-ip{color:var(--cyan);font-family:'Orbitron',monospace;font-weight:700;}
-  .server-label{color:var(--muted);font-size:11px;}
-  .header-stats{display:flex;gap:16px;align-items:center;}
-  .stat-item{text-align:center;}
-  .stat-num{font-family:'Orbitron',monospace;font-size:20px;font-weight:900;line-height:1;}
-  .stat-lbl{font-size:10px;color:var(--muted);letter-spacing:1px;}
-  .stat-pending .stat-num{color:var(--orange);}
-  .stat-processing .stat-num{color:var(--cyan);}
-  .stat-done .stat-num{color:var(--accent);}
-  .header-actions{display:flex;gap:8px;}
-  .hdr-btn{border:1px solid var(--border);background:var(--surface);border-radius:8px;padding:6px 14px;color:var(--muted);font-size:12px;cursor:pointer;transition:all 0.2s;font-family:'Rajdhani',sans-serif;font-weight:600;letter-spacing:1px;}
-  .hdr-btn:hover{border-color:var(--accent);color:var(--accent);}
-  .hdr-btn.danger:hover{border-color:var(--red);color:var(--red);}
-  .live-dot{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--accent);}
-  .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:pulse 1.5s ease-in-out infinite;box-shadow:0 0 8px var(--accent);}
-  @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.4;transform:scale(0.8);}}
+/* TABS */
+.main-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--surface);position:relative;z-index:5;}
+.mtab{padding:10px 24px;font-size:13px;font-weight:800;letter-spacing:1px;cursor:pointer;border-bottom:3px solid transparent;color:var(--muted);transition:all .2s;font-family:'Nunito',sans-serif;}
+.mtab:hover{color:var(--text);}
+.mtab.active{color:var(--accent);border-bottom-color:var(--accent);}
 
-  /* FILTER */
-  .filter-bar{display:flex;gap:8px;padding:10px 20px;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0;position:relative;z-index:5;}
-  .f-btn{background:transparent;border:1px solid var(--border);border-radius:20px;padding:5px 16px;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;letter-spacing:1px;transition:all 0.2s;font-family:'Rajdhani',sans-serif;}
-  .f-btn:hover{border-color:var(--accent);color:var(--accent);}
-  .f-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(0,255,136,0.08);}
-  .f-btn.f-pending{border-color:rgba(255,136,0,0.3);color:var(--orange);}
-  .f-btn.f-pending.active{background:rgba(255,136,0,0.1);}
-  .f-count{font-family:'Orbitron',monospace;font-size:11px;margin-left:4px;}
+/* FILTER */
+.filter-bar{display:flex;gap:8px;padding:10px 20px;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0;z-index:5;}
+.f-btn{background:transparent;border:1px solid var(--border);border-radius:20px;padding:5px 14px;color:var(--muted);font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;transition:all .2s;font-family:'Nunito',sans-serif;}
+.f-btn:hover{border-color:var(--accent);color:var(--accent);}
+.f-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(0,255,136,.07);}
+.f-btn.f-p{border-color:rgba(255,136,0,.3);color:var(--orange);}
+.f-btn.f-p.active{background:rgba(255,136,0,.08);}
+.f-count{font-family:'Bebas Neue',sans-serif;font-size:11px;margin-left:3px;}
 
-  /* ORDERS AREA */
-  .orders-area{flex:1;overflow-y:auto;padding:16px 20px;position:relative;z-index:1;}
-  .orders-area::-webkit-scrollbar{width:6px;}
-  .orders-area::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
-  .orders-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;}
+/* ORDERS */
+.orders-area{flex:1;overflow-y:auto;padding:14px 20px;position:relative;z-index:1;}
+.orders-area::-webkit-scrollbar{width:5px;}
+.orders-area::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+.orders-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;}
+.empty{text-align:center;padding:70px 20px;color:var(--muted);}
+.empty .ei{font-size:56px;margin-bottom:14px;opacity:.4;}
+.empty p{font-size:16px;letter-spacing:3px;}
 
-  /* EMPTY */
-  .empty{text-align:center;padding:80px 20px;color:var(--muted);}
-  .empty .ei{font-size:60px;margin-bottom:16px;opacity:0.4;}
-  .empty p{font-size:18px;letter-spacing:3px;}
-  .empty small{font-size:13px;display:block;margin-top:8px;color:#1a4a2e;}
+/* ORDER CARD */
+.ocard{background:var(--surface);border:1px solid var(--border);border-radius:13px;overflow:hidden;animation:slideIn .3s cubic-bezier(.4,0,.2,1);position:relative;}
+@keyframes slideIn{from{opacity:0;transform:translateY(14px) scale(.97);}to{opacity:1;transform:none;}}
+.ocard.s-pending{border-color:var(--orange);box-shadow:0 0 16px rgba(255,136,0,.1);}
+.ocard.s-processing{border-color:var(--cyan);box-shadow:0 0 16px rgba(0,212,255,.1);}
+.ocard.s-done{opacity:.55;}
+.ocard.is-new::after{content:'MỚI!';position:absolute;top:0;right:0;background:var(--red);color:#fff;font-family:'Bebas Neue',sans-serif;font-size:9px;font-weight:700;padding:3px 10px;border-radius:0 13px 0 9px;letter-spacing:2px;animation:blinkB .8s infinite;}
+@keyframes blinkB{0%,100%{opacity:1;}50%{opacity:.3;}}
+.ocard.is-call{border-color:var(--gold)!important;box-shadow:0 0 20px rgba(245,168,0,.3)!important;}
+.c-head{padding:11px 13px 8px;display:flex;align-items:flex-start;justify-content:space-between;border-bottom:1px solid var(--border);}
+.c-machine{font-family:'Bebas Neue',sans-serif;font-size:16px;font-weight:900;color:var(--accent);}
+.c-time{font-size:10px;color:var(--muted);margin-top:1px;}
+.c-badge{padding:3px 9px;border-radius:12px;font-size:10px;font-weight:700;letter-spacing:1px;white-space:nowrap;}
+.b-p{background:rgba(255,136,0,.1);color:var(--orange);border:1px solid var(--orange);}
+.b-pr{background:rgba(0,212,255,.08);color:var(--cyan);border:1px solid var(--cyan);}
+.b-d{background:rgba(0,255,136,.07);color:var(--accent);border:1px solid var(--border);}
+.b-call{background:rgba(245,168,0,.12);color:var(--gold);border:1px solid var(--gold);}
+.c-body{padding:9px 13px;}
+.c-item{display:flex;align-items:center;gap:7px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.03);font-size:12px;}
+.c-item:last-child{border-bottom:none;}
+.ci-img{width:22px;height:22px;border-radius:4px;overflow:hidden;flex-shrink:0;background:#111;display:flex;align-items:center;justify-content:center;font-size:13px;}
+.ci-img img{width:100%;height:100%;object-fit:cover;}
+.ci-n{flex:1;color:var(--text);}
+.ci-q{color:var(--cyan);font-family:'Bebas Neue',sans-serif;font-size:12px;}
+.ci-p{color:var(--gold);font-family:'Bebas Neue',sans-serif;font-size:11px;}
+.c-note{margin-top:7px;padding:5px 7px;background:rgba(245,168,0,.04);border:1px solid rgba(245,168,0,.12);border-radius:6px;font-size:11px;color:var(--gold);}
+.c-foot{padding:7px 13px 11px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);}
+.c-total{font-family:'Bebas Neue',sans-serif;font-size:14px;font-weight:700;color:var(--gold);}
+.c-acts{display:flex;gap:5px;}
+.a-btn{border:none;border-radius:7px;padding:5px 11px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:1px;transition:all .2s;font-family:'Nunito',sans-serif;}
+.btn-recv{background:rgba(0,212,255,.1);color:var(--cyan);border:1px solid var(--cyan);}
+.btn-recv:hover{background:rgba(0,212,255,.22);}
+.btn-done2{background:rgba(0,255,136,.1);color:var(--accent);border:1px solid var(--accent);}
+.btn-done2:hover{background:rgba(0,255,136,.22);}
+.btn-del{background:rgba(255,51,85,.07);color:var(--red);border:1px solid rgba(255,51,85,.22);padding:5px 8px;}
+.btn-del:hover{background:rgba(255,51,85,.2);}
 
-  /* ORDER CARD */
-  .o-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:all 0.3s;animation:slideIn 0.35s cubic-bezier(0.4,0,0.2,1);position:relative;}
-  @keyframes slideIn{from{opacity:0;transform:translateY(16px) scale(0.97);}to{opacity:1;transform:none;}}
-  .o-card.s-pending{border-color:var(--orange);box-shadow:0 0 18px rgba(255,136,0,0.12);}
-  .o-card.s-processing{border-color:var(--cyan);box-shadow:0 0 18px rgba(0,212,255,0.12);}
-  .o-card.s-done{opacity:0.55;}
-  .o-card.is-new::after{content:'MỚI!';position:absolute;top:0;right:0;background:var(--red);color:#fff;font-family:'Orbitron',monospace;font-size:9px;font-weight:700;padding:3px 10px;border-radius:0 14px 0 10px;letter-spacing:2px;animation:blinkBadge 0.8s infinite;}
-  @keyframes blinkBadge{0%,100%{opacity:1;}50%{opacity:0.3;}}
+/* NOTIFICATION */
+.notif{position:fixed;top:56px;right:18px;width:300px;background:var(--surface);border:2px solid var(--red);border-radius:13px;padding:13px 16px;box-shadow:0 8px 36px rgba(255,51,85,.4);z-index:999;display:none;animation:popIn .3s cubic-bezier(.4,0,.2,1);}
+.notif.show{display:block;}
+@keyframes popIn{from{opacity:0;transform:scale(.85) translateY(-14px);}to{opacity:1;transform:none;}}
+.notif-title{font-family:'Bebas Neue',sans-serif;font-size:13px;color:var(--red);margin-bottom:5px;}
+.notif-body{font-size:12px;color:var(--text);line-height:1.5;}
+.notif-close{position:absolute;top:9px;right:11px;background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;}
 
-  .c-head{padding:12px 14px 8px;display:flex;align-items:flex-start;justify-content:space-between;border-bottom:1px solid var(--border);}
-  .c-machine{font-family:'Orbitron',monospace;font-size:17px;font-weight:900;color:var(--accent);text-shadow:0 0 10px rgba(0,255,136,0.3);}
-  .c-time{font-size:11px;color:var(--muted);margin-top:2px;}
-  .c-badge{padding:3px 10px;border-radius:14px;font-size:10px;font-weight:700;letter-spacing:1px;white-space:nowrap;}
-  .b-pending{background:rgba(255,136,0,0.12);color:var(--orange);border:1px solid var(--orange);}
-  .b-processing{background:rgba(0,212,255,0.1);color:var(--cyan);border:1px solid var(--cyan);}
-  .b-done{background:rgba(0,255,136,0.08);color:var(--accent);border:1px solid var(--border);}
+/* ══ ADMIN MENU TAB ══ */
+.admin-wrap{flex:1;overflow:hidden;display:none;flex-direction:column;position:relative;z-index:1;}
+.admin-wrap.visible{display:flex;}
+.admin-toolbar{padding:12px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0;background:var(--surface);}
+.add-item-btn{background:linear-gradient(135deg,var(--accent),#00cc66);border:none;border-radius:10px;padding:9px 18px;color:#000;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;cursor:pointer;box-shadow:0 4px 14px rgba(0,255,136,.3);transition:all .2s;}
+.add-item-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,255,136,.4);}
+.admin-search{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:8px 13px;color:var(--text);font-family:'Nunito',sans-serif;font-size:13px;outline:none;max-width:260px;}
+.admin-search:focus{border-color:var(--accent);}
+.admin-search::placeholder{color:var(--muted);}
+.save-menu-btn{background:rgba(245,168,0,.12);border:1px solid var(--gold);border-radius:9px;padding:7px 16px;color:var(--gold);font-size:12px;font-weight:700;cursor:pointer;letter-spacing:1px;transition:all .2s;}
+.save-menu-btn:hover{background:rgba(245,168,0,.22);}
 
-  .c-body{padding:10px 14px;}
-  .c-item{display:flex;align-items:center;gap:8px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.03);font-size:13px;}
-  .c-item:last-child{border-bottom:none;}
-  .ci-em{font-size:16px;width:22px;}
-  .ci-n{flex:1;color:var(--text);}
-  .ci-q{color:var(--cyan);font-family:'Orbitron',monospace;font-size:11px;font-weight:700;}
-  .ci-p{color:var(--gold);font-family:'Orbitron',monospace;font-size:10px;}
-  .c-note{margin-top:8px;padding:6px 8px;background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.15);border-radius:6px;font-size:11px;color:var(--gold);}
+.admin-table-wrap{flex:1;overflow-y:auto;padding:16px 20px;}
+.admin-table-wrap::-webkit-scrollbar{width:5px;}
+.admin-table-wrap::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+.admin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;}
 
-  .c-foot{padding:8px 14px 12px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);}
-  .c-total{font-family:'Orbitron',monospace;font-size:15px;font-weight:700;color:var(--gold);}
-  .c-acts{display:flex;gap:6px;}
-  .a-btn{border:none;border-radius:7px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:1px;transition:all 0.2s;font-family:'Rajdhani',sans-serif;}
-  .btn-recv{background:rgba(0,212,255,0.12);color:var(--cyan);border:1px solid var(--cyan);}
-  .btn-recv:hover{background:rgba(0,212,255,0.25);}
-  .btn-done2{background:rgba(0,255,136,0.12);color:var(--accent);border:1px solid var(--accent);}
-  .btn-done2:hover{background:rgba(0,255,136,0.25);}
-  .btn-del{background:rgba(255,51,85,0.08);color:var(--red);border:1px solid rgba(255,51,85,0.25);padding:6px 9px;}
-  .btn-del:hover{background:rgba(255,51,85,0.2);}
+/* Admin item card */
+.acard{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:all .2s;position:relative;}
+.acard:hover{border-color:var(--accent);box-shadow:0 6px 20px rgba(0,255,136,.1);}
+.acard.hidden-item{opacity:.45;}
+.acard-img{height:110px;background:#111;display:flex;align-items:center;justify-content:center;font-size:44px;position:relative;overflow:hidden;cursor:pointer;}
+.acard-img img{width:100%;height:100%;object-fit:cover;}
+.acard-img .upload-overlay{position:absolute;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;font-size:24px;color:#fff;flex-direction:column;gap:4px;}
+.acard-img .upload-overlay span{font-size:11px;font-weight:700;letter-spacing:1px;}
+.acard-img:hover .upload-overlay{display:flex;}
+.acard-body{padding:9px 11px 11px;}
+.acard-name{font-size:13px;font-weight:800;color:var(--text);margin-bottom:3px;}
+.acard-cat{font-size:10px;color:var(--accent);letter-spacing:1px;margin-bottom:5px;}
+.acard-price{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--gold);margin-bottom:7px;}
+.acard-acts{display:flex;gap:5px;}
+.acard-btn{flex:1;border:none;border-radius:7px;padding:5px;font-size:11px;font-weight:700;cursor:pointer;transition:all .2s;font-family:'Nunito',sans-serif;letter-spacing:.5px;}
+.acard-edit{background:rgba(0,212,255,.1);color:var(--cyan);border:1px solid var(--cyan);}
+.acard-edit:hover{background:rgba(0,212,255,.22);}
+.acard-hide{background:rgba(255,136,0,.1);color:var(--orange);border:1px solid var(--orange);}
+.acard-hide:hover{background:rgba(255,136,0,.22);}
+.acard-del{background:rgba(255,51,85,.07);color:var(--red);border:1px solid rgba(255,51,85,.22);}
+.acard-del:hover{background:rgba(255,51,85,.2);}
 
-  /* NOTIFICATION */
-  .notif{position:fixed;top:60px;right:20px;width:310px;background:var(--surface);border:2px solid var(--red);border-radius:14px;padding:14px 18px;box-shadow:0 8px 40px rgba(255,51,85,0.4);z-index:999;display:none;animation:popIn 0.35s cubic-bezier(0.4,0,0.2,1);}
-  .notif.show{display:block;}
-  @keyframes popIn{from{opacity:0;transform:scale(0.85) translateY(-16px);}to{opacity:1;transform:none;}}
-  .notif-title{font-family:'Orbitron',monospace;font-size:13px;color:var(--red);margin-bottom:6px;}
-  .notif-body{font-size:13px;color:var(--text);line-height:1.5;}
-  .notif-close{position:absolute;top:10px;right:12px;background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;}
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:500;backdrop-filter:blur(4px);align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--surface);border:2px solid var(--accent);border-radius:18px;padding:28px 30px;width:480px;max-height:90vh;overflow-y:auto;position:relative;box-shadow:0 0 50px rgba(0,255,136,.15);}
+.modal::-webkit-scrollbar{width:4px;}
+.modal::-webkit-scrollbar-thumb{background:var(--border);}
+.modal-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:var(--accent);margin-bottom:22px;text-shadow:var(--glow);}
+.modal-close{position:absolute;top:14px;right:16px;background:none;border:1px solid var(--border);color:var(--muted);border-radius:7px;width:30px;height:30px;cursor:pointer;font-size:14px;transition:all .2s;}
+.modal-close:hover{border-color:var(--red);color:var(--red);}
+.mfl{margin-bottom:14px;}
+.mfl label{display:block;font-size:10px;font-weight:800;letter-spacing:2px;color:var(--accent);margin-bottom:6px;text-transform:uppercase;}
+.mfl input,.mfl select,.mfl textarea{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:9px;color:var(--text);padding:10px 13px;font-family:'Nunito',sans-serif;font-size:14px;outline:none;transition:border-color .2s;}
+.mfl input:focus,.mfl select:focus,.mfl textarea:focus{border-color:var(--accent);}
+.mfl input::placeholder{color:var(--muted);}
+.mfl select option{background:var(--surface);}
+.mfl-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.mfl-check{display:flex;align-items:center;gap:8px;cursor:pointer;}
+.mfl-check input{width:auto;}
+.mfl-check span{font-size:13px;font-weight:700;color:var(--text);}
 
-  /* SOUND toggle */
-  .sound-btn{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:5px 10px;color:var(--muted);font-size:18px;cursor:pointer;transition:all 0.2s;}
-  .sound-btn.on{border-color:var(--accent);color:var(--accent);}
+/* Image upload area */
+.img-upload-area{border:2px dashed var(--border);border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:14px;position:relative;overflow:hidden;min-height:120px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;}
+.img-upload-area:hover{border-color:var(--accent);}
+.img-upload-area.has-img{padding:0;border-style:solid;border-color:var(--accent);}
+.img-upload-area img{width:100%;height:150px;object-fit:cover;border-radius:10px;}
+.img-upload-area .upload-hint{font-size:12px;color:var(--muted);}
+.img-upload-area .upload-icon{font-size:32px;}
+.img-upload-area input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;}
+
+.modal-btns{display:flex;gap:10px;margin-top:6px;}
+.modal-save{flex:1;background:linear-gradient(135deg,var(--accent),#00cc66);border:none;border-radius:11px;padding:13px;color:#000;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;cursor:pointer;box-shadow:0 4px 16px rgba(0,255,136,.3);transition:all .2s;}
+.modal-save:hover{transform:translateY(-1px);}
+.modal-cancel{background:transparent;border:1px solid var(--border);border-radius:11px;padding:13px 20px;color:var(--muted);font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;cursor:pointer;transition:all .2s;}
+.modal-cancel:hover{border-color:var(--red);color:var(--red);}
+
+/* Sound toggle */
+.sound-btn{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:4px 8px;color:var(--muted);font-size:16px;cursor:pointer;transition:all .2s;}
+.sound-btn.on{border-color:var(--accent);color:var(--accent);}
 </style>
 </head>
 <body>
 
-<!-- CUSTOM TITLEBAR -->
-<div class="titlebar">
-  <div class="titlebar-title">AKNET CASHIER v1.0</div>
-  <div class="titlebar-right">
-    <button class="tb-btn tb-min" onclick="window.aknet && window.electronWin.minimize()">─</button>
-    <button class="tb-btn tb-max" onclick="window.electronWin && window.electronWin.maximize()">□</button>
-    <button class="tb-btn tb-close" onclick="window.electronWin && window.electronWin.close()">✕</button>
-  </div>
-</div>
-
 <!-- HEADER -->
 <div class="header">
   <div>
-    <div class="logo">AK<span>NET</span> <span style="font-size:13px;color:var(--muted);letter-spacing:2px;">CASHIER</span></div>
-    <div class="server-info" style="margin-top:4px;">
-      <div class="server-label">Địa chỉ IP cho máy trạm:</div>
+    <div class="logo">AK<span>NET</span> <span style="font-size:12px;color:var(--muted);letter-spacing:2px;">CASHIER</span></div>
+    <div class="server-info" style="margin-top:3px;">
+      <div style="font-size:9px;color:var(--muted);letter-spacing:1px;">IP CHO MÁY TRẠM:</div>
       <div class="server-ip" id="serverAddr">Đang tải...</div>
     </div>
   </div>
   <div class="header-stats">
-    <div class="stat-item stat-pending"><div class="stat-num" id="sPending">0</div><div class="stat-lbl">CHỜ</div></div>
-    <div style="width:1px;height:40px;background:var(--border);"></div>
-    <div class="stat-item stat-processing"><div class="stat-num" id="sProcess">0</div><div class="stat-lbl">ĐANG LÀM</div></div>
-    <div style="width:1px;height:40px;background:var(--border);"></div>
-    <div class="stat-item stat-done"><div class="stat-num" id="sDone">0</div><div class="stat-lbl">XONG</div></div>
+    <div class="stat-item stat-p"><div class="stat-num" id="sPending">0</div><div class="stat-lbl">CHỜ</div></div>
+    <div style="width:1px;height:36px;background:var(--border)"></div>
+    <div class="stat-item stat-pr"><div class="stat-num" id="sProcess">0</div><div class="stat-lbl">ĐANG LÀM</div></div>
+    <div style="width:1px;height:36px;background:var(--border)"></div>
+    <div class="stat-item stat-d"><div class="stat-num" id="sDone">0</div><div class="stat-lbl">XONG</div></div>
   </div>
-  <div class="header-actions">
+  <div style="display:flex;gap:8px;align-items:center;">
     <div class="live-dot"><div class="dot"></div>LIVE</div>
-    <button class="sound-btn on" id="soundBtn" onclick="toggleSound()" title="Âm thanh">🔔</button>
+    <button class="sound-btn on" id="soundBtn" onclick="toggleSound()">🔔</button>
     <button class="hdr-btn" onclick="clearDoneOrders()">Xóa đã xong</button>
     <button class="hdr-btn danger" onclick="confirmClearAll()">Xóa tất cả</button>
   </div>
 </div>
 
-<!-- FILTER -->
-<div class="filter-bar">
-  <button class="f-btn active" onclick="setFilter('all',this)">📋 Tất Cả <span class="f-count" id="fc-all"></span></button>
-  <button class="f-btn f-pending" onclick="setFilter('pending',this)">🔴 Chờ Xử Lý <span class="f-count" id="fc-pending"></span></button>
-  <button class="f-btn" onclick="setFilter('processing',this)">🔵 Đang Làm <span class="f-count" id="fc-processing"></span></button>
-  <button class="f-btn" onclick="setFilter('done',this)">✅ Đã Xong <span class="f-count" id="fc-done"></span></button>
+<!-- MAIN TABS -->
+<div class="main-tabs">
+  <div class="mtab active" id="tab-orders" onclick="switchTab('orders')">📋 QUẢN LÝ ORDER</div>
+  <div class="mtab" id="tab-menu" onclick="switchTab('menu')">🍽 QUẢN LÝ MENU</div>
 </div>
 
-<!-- ORDERS -->
-<div class="orders-area">
-  <div class="orders-grid" id="ordersGrid"></div>
-  <div class="empty" id="emptyState" style="display:none">
-    <div class="ei">📡</div>
-    <p>ĐANG CHỜ ĐƠN MỚI</p>
-    <small>Máy trạm kết nối vào IP hiển thị bên trên</small>
+<!-- ORDERS TAB -->
+<div id="orders-tab" style="display:flex;flex-direction:column;flex:1;overflow:hidden;">
+  <div class="filter-bar">
+    <button class="f-btn active" onclick="setFilter('all',this)">📋 Tất Cả <span class="f-count" id="fc-all"></span></button>
+    <button class="f-btn f-p" onclick="setFilter('pending',this)">🔴 Chờ <span class="f-count" id="fc-pending"></span></button>
+    <button class="f-btn" onclick="setFilter('processing',this)">🔵 Đang làm <span class="f-count" id="fc-processing"></span></button>
+    <button class="f-btn" onclick="setFilter('done',this)">✅ Xong <span class="f-count" id="fc-done"></span></button>
+  </div>
+  <div class="orders-area">
+    <div class="orders-grid" id="ordersGrid"></div>
+    <div class="empty" id="emptyState" style="display:none"><div class="ei">📡</div><p>ĐANG CHỜ ĐƠN MỚI</p></div>
+  </div>
+</div>
+
+<!-- MENU ADMIN TAB -->
+<div id="menu-tab" class="admin-wrap">
+  <div class="admin-toolbar">
+    <button class="add-item-btn" onclick="openModal()">+ THÊM MÓN MỚI</button>
+    <input class="admin-search" type="text" id="adminSearch" placeholder="🔍 Tìm món..." oninput="renderAdminGrid()"/>
+    <button class="save-menu-btn" onclick="broadcastMenu()">📡 CẬP NHẬT MÁY TRẠM</button>
+  </div>
+  <div class="admin-table-wrap">
+    <div class="admin-grid" id="adminGrid"></div>
   </div>
 </div>
 
 <!-- NOTIFICATION -->
 <div class="notif" id="notif">
   <button class="notif-close" onclick="closeNotif()">✕</button>
-  <div class="notif-title">🔔 ORDER MỚI!</div>
+  <div class="notif-title" id="notifTitle">🔔 ORDER MỚI!</div>
   <div class="notif-body" id="notifBody"></div>
 </div>
 
-<script>
-let orders = [];
-let filter = 'all';
-let newIds = new Set();
-let soundOn = true;
-let notifTimer = null;
+<!-- MODAL THÊM/SỬA MÓN -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-title" id="modalTitle">➕ THÊM MÓN MỚI</div>
 
+    <div class="mfl">
+      <label>Ảnh món ăn</label>
+      <div class="img-upload-area" id="imgUploadArea" onclick="triggerImgUpload()">
+        <img id="previewImg" src="" alt="" style="display:none"/>
+        <div id="uploadHint">
+          <div class="upload-icon">📷</div>
+          <div class="upload-hint">Click để upload ảnh<br><span style="color:rgba(255,255,255,.3)">JPG, PNG, WEBP (tối đa 2MB)</span></div>
+        </div>
+        <input type="file" id="imgFileInput" accept="image/*" onchange="handleImgUpload(event)" style="display:none"/>
+      </div>
+    </div>
+
+    <div class="mfl-row">
+      <div class="mfl"><label>Tên món *</label><input id="f-name" placeholder="VD: Mì Xào Bò"/></div>
+      <div class="mfl">
+        <label>Danh mục *</label>
+        <select id="f-cat">
+          <option value="Best Seller">Best Seller</option>
+          <option value="Đồ Ăn">Đồ Ăn</option>
+          <option value="Nước Uống">Nước Uống</option>
+          <option value="Nước Ép">Nước Ép</option>
+          <option value="Giờ Chơi">Giờ Chơi</option>
+          <option value="Dịch Vụ">Dịch Vụ</option>
+        </select>
+      </div>
+    </div>
+    <div class="mfl-row">
+      <div class="mfl"><label>Giá bán (VND) *</label><input id="f-price" type="number" placeholder="25000"/></div>
+      <div class="mfl"><label>Giá gốc (để trống nếu không giảm)</label><input id="f-old-price" type="number" placeholder="30000"/></div>
+    </div>
+    <div class="mfl-row">
+      <div class="mfl"><label>Emoji (nếu không có ảnh)</label><input id="f-emoji" placeholder="🍜"/></div>
+      <div class="mfl" style="display:flex;align-items:flex-end;padding-bottom:2px;">
+        <label class="mfl-check"><input type="checkbox" id="f-best"/><span>⭐ Best Seller</span></label>
+      </div>
+    </div>
+    <div class="mfl"><label>Mô tả ngắn</label><input id="f-desc" placeholder="VD: Mì xào bò sốt tiêu đen thơm ngon"/></div>
+
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeModal()">HỦY</button>
+      <button class="modal-save" onclick="saveItem()">💾 LƯU MÓN</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────────────
+let orders = [];
+let MENU = [];
+let filter = 'all', newIds = new Set(), soundOn = true;
+let editingId = null, currentImgData = null;
+let notifTimer = null;
 const fmt = n => n.toLocaleString('vi-VN') + 'đ';
 
-// ─── Audio ────────────────────────────────────────────────────────────────────
-function playBeep() {
-  if (!soundOn) return;
-  try {
-    const ctx = new AudioContext();
-    const o = ctx.createOscillator();
-    const g = ctx.createGain();
-    o.connect(g); g.connect(ctx.destination);
-    o.type = 'sine'; o.frequency.value = 880;
-    g.gain.setValueAtTime(0, ctx.currentTime);
-    g.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.01);
-    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
-    o.start(); o.stop(ctx.currentTime + 0.4);
-    setTimeout(() => {
-      const o2 = ctx.createOscillator();
-      const g2 = ctx.createGain();
-      o2.connect(g2); g2.connect(ctx.destination);
-      o2.type = 'sine'; o2.frequency.value = 1100;
-      g2.gain.setValueAtTime(0, ctx.currentTime);
-      g2.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.01);
-      g2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
-      o2.start(); o2.stop(ctx.currentTime + 0.3);
-    }, 200);
-  } catch(e){}
-}
-
-function toggleSound() {
-  soundOn = !soundOn;
-  const btn = document.getElementById('soundBtn');
-  btn.textContent = soundOn ? '🔔' : '🔕';
-  btn.className = 'sound-btn' + (soundOn ? ' on' : '');
-}
-
-// ─── Render ───────────────────────────────────────────────────────────────────
-function badgeHTML(s) {
-  if (s==='pending') return '<span class="c-badge b-pending">⏳ CHỜ</span>';
-  if (s==='processing') return '<span class="c-badge b-processing">⚡ ĐANG LÀM</span>';
-  return '<span class="c-badge b-done">✅ XONG</span>';
-}
-
-function render() {
-  const filtered = filter === 'all' ? orders : orders.filter(o => o.status === filter);
-  const grid = document.getElementById('ordersGrid');
-  const empty = document.getElementById('emptyState');
-
-  // Stats
-  document.getElementById('sPending').textContent = orders.filter(o=>o.status==='pending').length;
-  document.getElementById('sProcess').textContent = orders.filter(o=>o.status==='processing').length;
-  document.getElementById('sDone').textContent = orders.filter(o=>o.status==='done').length;
-  document.getElementById('fc-all').textContent = orders.length || '';
-  document.getElementById('fc-pending').textContent = orders.filter(o=>o.status==='pending').length || '';
-  document.getElementById('fc-processing').textContent = orders.filter(o=>o.status==='processing').length || '';
-  document.getElementById('fc-done').textContent = orders.filter(o=>o.status==='done').length || '';
-
-  if (!filtered.length) {
-    grid.innerHTML = ''; empty.style.display = 'block'; return;
+// ── Load/Save menu ─────────────────────────────────────────────────────────────
+function loadMenu() {
+  if (window.aknet) {
+    // Sẽ load từ file JSON qua IPC
+    window.aknet.getMenu().then(m => { if(m&&m.length) MENU=m; renderAdminGrid(); }).catch(()=>{});
   }
-  empty.style.display = 'none';
+}
 
-  grid.innerHTML = [...filtered].reverse().map(order => `
-    <div class="o-card s-${order.status} ${newIds.has(order.id) ? 'is-new' : ''}">
+function saveMenu() {
+  if (window.aknet) window.aknet.saveMenu(MENU).catch(()=>{});
+}
+
+// ── Tabs ───────────────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  document.getElementById('orders-tab').style.display = tab==='orders' ? 'flex' : 'none';
+  document.getElementById('menu-tab').classList.toggle('visible', tab==='menu');
+  document.getElementById('tab-orders').classList.toggle('active', tab==='orders');
+  document.getElementById('tab-menu').classList.toggle('active', tab==='menu');
+  if(tab==='menu') renderAdminGrid();
+}
+
+// ── Orders Render ──────────────────────────────────────────────────────────────
+function badgeHTML(s){
+  if(s==='pending') return '<span class="c-badge b-p">⏳ CHỜ</span>';
+  if(s==='processing') return '<span class="c-badge b-pr">⚡ ĐANG LÀM</span>';
+  return '<span class="c-badge b-d">✅ XONG</span>';
+}
+
+function renderOrders() {
+  const filtered = filter==='all' ? orders : orders.filter(o=>o.status===filter);
+  const grid=document.getElementById('ordersGrid'), empty=document.getElementById('emptyState');
+  document.getElementById('sPending').textContent=orders.filter(o=>o.status==='pending').length;
+  document.getElementById('sProcess').textContent=orders.filter(o=>o.status==='processing').length;
+  document.getElementById('sDone').textContent=orders.filter(o=>o.status==='done').length;
+  document.getElementById('fc-all').textContent=orders.length||'';
+  document.getElementById('fc-pending').textContent=orders.filter(o=>o.status==='pending').length||'';
+  document.getElementById('fc-processing').textContent=orders.filter(o=>o.status==='processing').length||'';
+  document.getElementById('fc-done').textContent=orders.filter(o=>o.status==='done').length||'';
+  if(!filtered.length){grid.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  grid.innerHTML=[...filtered].reverse().map(order=>{
+    const isCall = order.type==='call_staff';
+    return `<div class="ocard s-${order.status||'pending'} ${newIds.has(order.id)?'is-new':''} ${isCall?'is-call':''}">
       <div class="c-head">
-        <div>
-          <div class="c-machine">📍 ${order.machine}</div>
-          <div class="c-time">🕐 ${order.time} &nbsp;·&nbsp; #${String(order.id).slice(-4)}</div>
-        </div>
-        ${badgeHTML(order.status)}
+        <div><div class="c-machine">📍 ${order.machine}</div><div class="c-time">🕐 ${order.time} · #${String(order.id).slice(-4)}</div></div>
+        ${isCall ? '<span class="c-badge b-call">🔔 GỌI NHÂN VIÊN</span>' : badgeHTML(order.status)}
       </div>
       <div class="c-body">
-        ${order.items.map(i => `
-          <div class="c-item">
-            <span class="ci-em">${i.emoji}</span>
-            <span class="ci-n">${i.name}</span>
-            <span class="ci-q">×${i.qty}</span>
-            <span class="ci-p">${fmt(i.price * i.qty)}</span>
-          </div>`).join('')}
-        ${order.note ? `<div class="c-note">📝 ${order.note}</div>` : ''}
+        ${(order.items||[]).map(i=>{
+          const imgEl = i.image ? `<img src="${i.image}" alt="" onerror="this.style.display='none'">` : i.emoji||'🍽';
+          return `<div class="c-item"><div class="ci-img">${imgEl}</div><span class="ci-n">${i.name}</span><span class="ci-q">×${i.qty}</span><span class="ci-p">${fmt(i.price*i.qty)}</span></div>`;
+        }).join('')}
+        ${order.note?`<div class="c-note">📝 ${order.note}</div>`:''}
       </div>
       <div class="c-foot">
-        <div class="c-total">${fmt(order.total)}</div>
+        <div class="c-total">${fmt(order.total||0)}</div>
         <div class="c-acts">
-          ${order.status==='pending' ? `<button class="a-btn btn-recv" onclick="setStatus(${order.id},'processing')">⚡ Nhận</button>` : ''}
-          ${order.status==='processing' ? `<button class="a-btn btn-done2" onclick="setStatus(${order.id},'done')">✅ Xong</button>` : ''}
+          ${!isCall&&order.status==='pending'?`<button class="a-btn btn-recv" onclick="setStatus(${order.id},'processing')">⚡ Nhận</button>`:''}
+          ${!isCall&&order.status==='processing'?`<button class="a-btn btn-done2" onclick="setStatus(${order.id},'done')">✅ Xong</button>`:''}
           <button class="a-btn btn-del" onclick="delOrder(${order.id})">🗑</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function setStatus(id, status) {
+  await window.aknet.updateStatus(id, status);
+  const o=orders.find(o=>o.id===id); if(o){o.status=status; renderOrders();}
+}
+async function delOrder(id) {
+  await window.aknet.deleteOrder(id);
+  orders=orders.filter(o=>o.id!==id); newIds.delete(id); renderOrders();
+}
+async function clearDoneOrders() {
+  await window.aknet.clearDone();
+  orders=orders.filter(o=>o.status!=='done'); renderOrders();
+}
+function confirmClearAll() {
+  if(confirm('Xóa toàn bộ đơn?')){orders=[];newIds.clear();renderOrders();}
+}
+function setFilter(f,btn){
+  filter=f;
+  document.querySelectorAll('.f-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); renderOrders();
+}
+
+// ── Notification ───────────────────────────────────────────────────────────────
+function showNotif(title, body) {
+  playBeep();
+  document.getElementById('notifTitle').textContent = title;
+  document.getElementById('notifBody').innerHTML = body;
+  const n=document.getElementById('notif'); n.classList.add('show');
+  clearTimeout(notifTimer);
+  notifTimer=setTimeout(()=>n.classList.remove('show'),7000);
+  document.title='🔔 '+title+' – AKNet Cashier';
+  setTimeout(()=>document.title='AKNet Cashier',5000);
+}
+function closeNotif(){document.getElementById('notif').classList.remove('show');}
+
+function playBeep(){
+  if(!soundOn) return;
+  try{
+    const ctx=new AudioContext(), o=ctx.createOscillator(), g=ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.type='sine'; o.frequency.value=880;
+    g.gain.setValueAtTime(0,ctx.currentTime);
+    g.gain.linearRampToValueAtTime(.3,ctx.currentTime+.01);
+    g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.4);
+    o.start(); o.stop(ctx.currentTime+.4);
+    setTimeout(()=>{
+      const o2=ctx.createOscillator(),g2=ctx.createGain();
+      o2.connect(g2);g2.connect(ctx.destination);
+      o2.type='sine';o2.frequency.value=1100;
+      g2.gain.setValueAtTime(0,ctx.currentTime);
+      g2.gain.linearRampToValueAtTime(.3,ctx.currentTime+.01);
+      g2.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.3);
+      o2.start();o2.stop(ctx.currentTime+.3);
+    },200);
+  }catch(e){}
+}
+function toggleSound(){
+  soundOn=!soundOn;
+  const btn=document.getElementById('soundBtn');
+  btn.textContent=soundOn?'🔔':'🔕'; btn.className='sound-btn'+(soundOn?' on':'');
+}
+
+// ── Admin Menu Grid ────────────────────────────────────────────────────────────
+function renderAdminGrid() {
+  const q=(document.getElementById('adminSearch')?.value||'').toLowerCase();
+  const filtered=MENU.filter(i=>!q||i.name.toLowerCase().includes(q));
+  const grid=document.getElementById('adminGrid');
+  if(!filtered.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted);font-size:14px;letter-spacing:2px;">CHƯA CÓ MÓN NÀO – BẤM + THÊM MÓN MỚI</div>';return;}
+  grid.innerHTML=filtered.map(item=>`
+    <div class="acard ${item.hidden?'hidden-item':''}" id="acard-${item.id}">
+      <div class="acard-img" onclick="openModal(${item.id})">
+        ${item.image
+          ? `<img src="${item.image}" alt="${item.name}" onerror="this.style.display='none'">`
+          : `<span style="font-size:44px">${item.emoji||'🍽'}</span>`}
+        <div class="upload-overlay"><span>📷</span><span>ĐỔI ẢNH</span></div>
+      </div>
+      <div class="acard-body">
+        <div class="acard-name">${item.best?'👑 ':''} ${item.name}</div>
+        <div class="acard-cat">${item.cat}</div>
+        <div class="acard-price">${fmt(item.price)} ${item.oldPrice?`<span style="font-size:11px;color:var(--muted);text-decoration:line-through">${fmt(item.oldPrice)}</span>`:''}</div>
+        <div class="acard-acts">
+          <button class="acard-btn acard-edit" onclick="openModal(${item.id})">✏ Sửa</button>
+          <button class="acard-btn acard-hide" onclick="toggleHide(${item.id})">${item.hidden?'👁 Hiện':'🚫 Ẩn'}</button>
+          <button class="acard-btn acard-del" onclick="deleteItem(${item.id})">🗑</button>
         </div>
       </div>
     </div>`).join('');
 }
 
-// ─── Actions ──────────────────────────────────────────────────────────────────
-async function setStatus(id, status) {
-  await window.aknet.updateStatus(id, status);
-  const o = orders.find(o => o.id === id);
-  if (o) { o.status = status; render(); }
+function toggleHide(id){
+  const item=MENU.find(i=>i.id===id);
+  if(item){item.hidden=!item.hidden; saveMenu(); renderAdminGrid();}
 }
 
-async function delOrder(id) {
-  await window.aknet.deleteOrder(id);
-  orders = orders.filter(o => o.id !== id);
-  newIds.delete(id); render();
+function deleteItem(id){
+  if(!confirm('Xóa món này?')) return;
+  MENU=MENU.filter(i=>i.id!==id);
+  saveMenu(); renderAdminGrid();
 }
 
-async function clearDoneOrders() {
-  await window.aknet.clearDone();
-  orders = orders.filter(o => o.status !== 'done');
-  render();
+// ── Broadcast menu đến máy trạm ───────────────────────────────────────────────
+function broadcastMenu() {
+  if(window.aknet) window.aknet.broadcastMenu(MENU.filter(i=>!i.hidden));
+  showNotif('📡 ĐÃ CẬP NHẬT!','Menu mới đã gửi đến tất cả máy trạm.');
 }
 
-function confirmClearAll() {
-  if (confirm('Xóa toàn bộ đơn hàng hiện tại?')) {
-    orders = []; newIds.clear();
-    window.aknet.clearDone(); render();
+// ── Modal ──────────────────────────────────────────────────────────────────────
+function openModal(id=null) {
+  editingId=id; currentImgData=null;
+  const item=id?MENU.find(i=>i.id===id):null;
+  document.getElementById('modalTitle').textContent=id?'✏ CHỈNH SỬA MÓN':'➕ THÊM MÓN MỚI';
+  document.getElementById('f-name').value=item?.name||'';
+  document.getElementById('f-cat').value=item?.cat||'Đồ Ăn';
+  document.getElementById('f-price').value=item?.price||'';
+  document.getElementById('f-old-price').value=item?.oldPrice||'';
+  document.getElementById('f-emoji').value=item?.emoji||'';
+  document.getElementById('f-desc').value=item?.desc||'';
+  document.getElementById('f-best').checked=item?.best||false;
+  // Preview image
+  const prev=document.getElementById('previewImg'), hint=document.getElementById('uploadHint');
+  if(item?.image){
+    prev.src=item.image; prev.style.display='block'; hint.style.display='none';
+    document.getElementById('imgUploadArea').classList.add('has-img');
+    currentImgData=item.image;
+  } else {
+    prev.src=''; prev.style.display='none'; hint.style.display='flex';
+    document.getElementById('imgUploadArea').classList.remove('has-img');
   }
+  document.getElementById('modalOverlay').classList.add('open');
 }
 
-function setFilter(f, btn) {
-  filter = f;
-  document.querySelectorAll('.f-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  render();
+function closeModal(){
+  document.getElementById('modalOverlay').classList.remove('open');
+  editingId=null; currentImgData=null;
 }
 
-// ─── Notification ─────────────────────────────────────────────────────────────
-function showNotif(order) {
-  playBeep();
-  const body = document.getElementById('notifBody');
-  body.innerHTML = `<strong>${order.machine}</strong> – ${order.items.map(i=>`${i.emoji}${i.name}×${i.qty}`).join(', ')}<br><strong style="color:var(--gold)">${fmt(order.total)}</strong>`;
-  const n = document.getElementById('notif');
-  n.classList.add('show');
-  clearTimeout(notifTimer);
-  notifTimer = setTimeout(() => n.classList.remove('show'), 7000);
-  document.title = '🔔 ORDER MỚI! – AKNet Cashier';
-  setTimeout(() => { document.title = 'AKNet Cashier'; }, 5000);
+function triggerImgUpload(){ document.getElementById('imgFileInput').click(); }
+
+function handleImgUpload(e) {
+  const file=e.target.files[0];
+  if(!file) return;
+  if(file.size>2*1024*1024){alert('Ảnh quá lớn! Tối đa 2MB');return;}
+  const reader=new FileReader();
+  reader.onload=(ev)=>{
+    currentImgData=ev.target.result;
+    const prev=document.getElementById('previewImg'), hint=document.getElementById('uploadHint');
+    prev.src=currentImgData; prev.style.display='block'; hint.style.display='none';
+    document.getElementById('imgUploadArea').classList.add('has-img');
+  };
+  reader.readAsDataURL(file);
 }
 
-function closeNotif() {
-  document.getElementById('notif').classList.remove('show');
-  clearTimeout(notifTimer);
+function saveItem(){
+  const name=document.getElementById('f-name').value.trim();
+  const price=parseInt(document.getElementById('f-price').value);
+  if(!name){alert('Vui lòng nhập tên món!');return;}
+  if(!price||price<=0){alert('Vui lòng nhập giá hợp lệ!');return;}
+  const oldPrice=parseInt(document.getElementById('f-old-price').value)||null;
+  const item={
+    id: editingId || Date.now(),
+    name, price, oldPrice,
+    cat: document.getElementById('f-cat').value,
+    emoji: document.getElementById('f-emoji').value||'🍽',
+    desc: document.getElementById('f-desc').value,
+    best: document.getElementById('f-best').checked,
+    image: currentImgData||null,
+    hidden: false,
+  };
+  if(editingId){ const idx=MENU.findIndex(i=>i.id===editingId); if(idx>=0) MENU[idx]=item; }
+  else MENU.push(item);
+  saveMenu(); renderAdminGrid(); closeModal();
 }
 
-// ─── IPC Events ───────────────────────────────────────────────────────────────
+// ── IPC Events ─────────────────────────────────────────────────────────────────
 window.aknet.onServerInfo(info => {
-  document.getElementById('serverAddr').textContent = `${info.ip}:${info.port}`;
+  document.getElementById('serverAddr').textContent=`${info.ip}:${info.port}`;
 });
 
 window.aknet.onNewOrder(order => {
-  if (!orders.find(o => o.id === order.id)) orders.push(order);
+  if(!orders.find(o=>o.id===order.id)) orders.push(order);
   newIds.add(order.id);
-  render();
-  showNotif(order);
-  setTimeout(() => { newIds.delete(order.id); render(); }, 12000);
-});
-
-window.aknet.onBroadcast(msg => {
-  if (msg.type === 'status_update') {
-    const o = orders.find(o => o.id === msg.id);
-    if (o) { o.status = msg.status; render(); }
-  } else if (msg.type === 'order_deleted') {
-    orders = orders.filter(o => o.id !== msg.id);
-    render();
-  } else if (msg.type === 'refresh') {
-    orders = msg.orders || []; render();
+  renderOrders();
+  if(order.type==='call_staff'){
+    showNotif('🔔 GỌI NHÂN VIÊN!',`<strong>${order.machine}</strong> cần nhân viên hỗ trợ!`);
+  } else {
+    showNotif('🔔 ORDER MỚI!',`<strong>${order.machine}</strong> – ${order.items?.map(i=>`${i.emoji||'🍽'}${i.name}×${i.qty}`).join(', ')}<br><strong style="color:var(--gold)">${fmt(order.total||0)}</strong>`);
   }
+  setTimeout(()=>{newIds.delete(order.id);renderOrders();},12000);
 });
 
-// ─── Init ─────────────────────────────────────────────────────────────────────
-(async () => {
-  const info = await window.aknet.getServerInfo();
-  document.getElementById('serverAddr').textContent = `${info.ip}:${info.port}`;
-  orders = await window.aknet.getOrders();
-  render();
+window.aknet.onBroadcast(msg=>{
+  if(msg.type==='status_update'){const o=orders.find(o=>o.id===msg.id);if(o){o.status=msg.status;renderOrders();}}
+  else if(msg.type==='order_deleted'){orders=orders.filter(o=>o.id!==msg.id);renderOrders();}
+  else if(msg.type==='refresh'){orders=msg.orders||[];renderOrders();}
+});
+
+// ── Init ───────────────────────────────────────────────────────────────────────
+(async()=>{
+  const info=await window.aknet.getServerInfo();
+  document.getElementById('serverAddr').textContent=`${info.ip}:${info.port}`;
+  orders=await window.aknet.getOrders();
+  loadMenu();
+  renderOrders();
 })();
 </script>
 </body>

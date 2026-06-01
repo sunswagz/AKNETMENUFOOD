@@ -3,684 +3,273 @@
 <head>
 <meta charset="UTF-8">
 <title>AKNet Order</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Anton&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&family=Anton&display=swap" rel="stylesheet">
 <style>
 :root {
-  --black: #0a0a0a;
-  --dark: #111111;
-  --card: #181818;
-  --gold: #f5a800;
-  --gold2: #ffcc44;
-  --gold-dim: rgba(245,168,0,0.15);
-  --white: #ffffff;
-  --gray: #888;
-  --red: #e63030;
-  --border: rgba(245,168,0,0.25);
+  --black:#0a0a0a; --dark:#111; --card:#181818; --card2:#1e1e1e;
+  --gold:#f5a800; --gold2:#ffcc44; --gold-dim:rgba(245,168,0,0.12);
+  --white:#fff; --gray:#777; --red:#e63030; --green:#22c55e;
+  --border:rgba(245,168,0,0.2); --text:#e8e8e8;
 }
-* { margin:0; padding:0; box-sizing:border-box; }
-html, body { height:100%; overflow:hidden; }
-body {
-  background: var(--black);
-  color: var(--white);
-  font-family: 'Nunito', sans-serif;
-  display: flex;
-  flex-direction: column;
-}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow:hidden;}
+body{background:var(--black);color:var(--text);font-family:'Nunito',sans-serif;display:flex;flex-direction:column;}
 
-/* ── NOISE TEXTURE OVERLAY ── */
-body::before {
-  content:'';
-  position:fixed; inset:0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-  pointer-events:none; z-index:1000; opacity:0.4;
-}
+/* ── SETUP ── */
+.setup{display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:0;background:radial-gradient(ellipse at center,#1a1200,#0a0a0a 70%);}
+.setup-logo{font-family:'Bebas Neue',sans-serif;font-size:90px;letter-spacing:8px;color:var(--gold);text-shadow:0 0 60px rgba(245,168,0,0.5),0 4px 0 #7a5000;line-height:1;margin-bottom:4px;}
+.setup-sub{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:6px;color:rgba(255,255,255,0.3);margin-bottom:36px;}
+.setup-card{background:var(--dark);border:2px solid var(--gold);border-radius:20px;padding:36px 40px;width:420px;box-shadow:0 0 60px rgba(245,168,0,0.15);}
+.setup-card::before{content:'';display:block;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:-36px -40px 28px;}
+.setup-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:4px;color:var(--gold);text-align:center;margin-bottom:24px;}
+.fl{margin-bottom:14px;}
+.fl label{display:block;font-size:10px;font-weight:800;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:6px;}
+.fl input{width:100%;background:rgba(255,255,255,0.05);border:1.5px solid rgba(245,168,0,0.25);border-radius:10px;color:#fff;padding:11px 14px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:700;outline:none;transition:border-color .2s;}
+.fl input:focus{border-color:var(--gold);box-shadow:0 0 16px rgba(245,168,0,0.2);}
+.fl input::placeholder{color:rgba(255,255,255,0.2);font-weight:400;}
+.connect-btn{width:100%;margin-top:6px;background:linear-gradient(135deg,var(--gold),#e09000);border:none;border-radius:12px;padding:15px;color:#000;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:4px;cursor:pointer;box-shadow:0 6px 24px rgba(245,168,0,0.4),0 2px 0 #7a5000;transition:all .2s;position:relative;overflow:hidden;}
+.connect-btn::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(255,255,255,0.15),transparent);}
+.connect-btn:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(245,168,0,0.5);}
+.setup-status{text-align:center;font-size:13px;font-weight:700;letter-spacing:1px;min-height:22px;margin-top:14px;}
+.s-ok{color:#4ade80;} .s-err{color:var(--red);} .s-loading{color:var(--gray);}
 
-/* ══ SETUP SCREEN ══════════════════════════════════════════ */
-.setup-screen {
-  display: flex; align-items:center; justify-content:center;
-  height: 100vh;
-  background: radial-gradient(ellipse at center, #1a1200 0%, #0a0a0a 70%);
-  flex-direction: column; gap: 0;
-  position: relative; z-index: 10;
-}
-.setup-logo-big {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 80px; letter-spacing: 8px;
-  color: var(--gold);
-  text-shadow: 0 0 60px rgba(245,168,0,0.5), 0 4px 0 #7a5000;
-  line-height: 1;
-  margin-bottom: 4px;
-}
-.setup-sub-title {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 20px; letter-spacing: 6px;
-  color: rgba(255,255,255,0.4);
-  margin-bottom: 40px;
-}
-.setup-card {
-  background: var(--dark);
-  border: 2px solid var(--gold);
-  border-radius: 20px;
-  padding: 36px 40px;
-  width: 420px;
-  box-shadow: 0 0 60px rgba(245,168,0,0.15), inset 0 1px 0 rgba(255,255,255,0.05);
-  position: relative;
-  overflow: hidden;
-}
-.setup-card::before {
-  content: '';
-  position: absolute; top:0; left:0; right:0; height:3px;
-  background: linear-gradient(90deg, transparent, var(--gold), transparent);
-}
-.setup-card-title {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 22px; letter-spacing: 4px;
-  color: var(--gold); text-align: center;
-  margin-bottom: 28px;
-}
-.field-group { margin-bottom: 16px; }
-.field-label {
-  font-size: 11px; font-weight: 700; letter-spacing: 3px;
-  color: var(--gold); text-transform: uppercase;
-  margin-bottom: 7px; display: block;
-}
-.field-input {
-  width: 100%;
-  background: rgba(255,255,255,0.05);
-  border: 1.5px solid rgba(245,168,0,0.3);
-  border-radius: 10px;
-  color: var(--white);
-  padding: 12px 16px;
-  font-family: 'Nunito', sans-serif;
-  font-size: 15px; font-weight: 700;
-  outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-.field-input:focus {
-  border-color: var(--gold);
-  box-shadow: 0 0 20px rgba(245,168,0,0.2);
-}
-.field-input::placeholder { color: rgba(255,255,255,0.2); font-weight: 400; }
-.connect-btn {
-  width: 100%; margin-top: 8px;
-  background: linear-gradient(135deg, var(--gold) 0%, #e09000 100%);
-  border: none; border-radius: 12px;
-  padding: 15px;
-  color: #000;
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 20px; letter-spacing: 4px;
-  cursor: pointer;
-  box-shadow: 0 6px 24px rgba(245,168,0,0.4), 0 2px 0 #7a5000;
-  transition: all 0.2s;
-  position: relative; overflow: hidden;
-}
-.connect-btn::after {
-  content:''; position:absolute; inset:0;
-  background: linear-gradient(to bottom, rgba(255,255,255,0.15), transparent);
-}
-.connect-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 32px rgba(245,168,0,0.5); }
-.connect-btn:active { transform: translateY(0); }
-.conn-status {
-  text-align: center; font-size: 13px; font-weight: 700;
-  letter-spacing: 1px; min-height: 22px; margin-top: 14px;
-}
-.s-ok { color: #4ade80; } .s-err { color: var(--red); } .s-loading { color: var(--gray); }
+/* ── APP LAYOUT ── */
+.app{display:none;height:100vh;flex-direction:row;}
+.app.visible{display:flex;}
 
-/* ══ MAIN APP ══════════════════════════════════════════════ */
-.app-screen { display:none; flex-direction:row; height:100vh; }
-.app-screen.visible { display:flex; }
-
-/* ── LEFT SIDEBAR ── */
-.sidebar {
-  width: 220px; flex-shrink: 0;
-  background: var(--dark);
-  border-right: 2px solid var(--border);
-  display: flex; flex-direction: column;
-  overflow: hidden;
-  position: relative;
-}
-.sidebar::before {
-  content:'';
-  position:absolute; bottom:0; left:0; right:0; height:200px;
-  background: linear-gradient(to top, rgba(245,168,0,0.05), transparent);
-  pointer-events:none;
-}
-.sidebar-logo {
-  padding: 20px 18px 16px;
-  border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; gap: 12px;
-}
-.logo-icon {
-  width: 46px; height: 46px; flex-shrink: 0;
-  background: linear-gradient(135deg, var(--gold), #e09000);
-  border-radius: 12px;
-  display: flex; align-items:center; justify-content:center;
-  font-size: 24px;
-  box-shadow: 0 4px 16px rgba(245,168,0,0.4);
-}
-.logo-text { line-height: 1.1; }
-.logo-name {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 22px; letter-spacing: 3px; color: var(--gold);
-  line-height: 1;
-}
-.logo-tagline { font-size: 9px; letter-spacing: 2px; color: var(--gray); text-transform: uppercase; }
-
-.sidebar-cats { flex: 1; padding: 12px 0; overflow-y: auto; }
-.sidebar-cats::-webkit-scrollbar { display: none; }
-.cat-item {
-  display: flex; align-items: center; gap: 12px;
-  padding: 11px 18px;
-  cursor: pointer;
-  border-left: 3px solid transparent;
-  transition: all 0.2s;
-  position: relative;
-}
-.cat-item:hover { background: var(--gold-dim); border-left-color: rgba(245,168,0,0.4); }
-.cat-item.active {
-  background: var(--gold-dim);
-  border-left-color: var(--gold);
-}
-.cat-icon { font-size: 18px; width: 26px; text-align:center; }
-.cat-name {
-  font-size: 13px; font-weight: 700; letter-spacing: 0.5px;
-  color: rgba(255,255,255,0.7);
-}
-.cat-item.active .cat-name { color: var(--gold); }
-.cat-count {
-  margin-left: auto;
-  background: rgba(245,168,0,0.15);
-  color: var(--gold);
-  font-size: 10px; font-weight: 800;
-  padding: 2px 7px; border-radius: 20px;
-  border: 1px solid rgba(245,168,0,0.3);
-}
-
-.sidebar-bottom {
-  padding: 14px;
-  border-top: 1px solid var(--border);
-}
-.machine-display {
-  background: var(--gold-dim);
-  border: 1.5px solid var(--border);
-  border-radius: 10px;
-  padding: 10px 14px;
-  margin-bottom: 10px;
-}
-.machine-label { font-size: 9px; letter-spacing: 2px; color: var(--gray); margin-bottom: 3px; }
-.machine-name {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 18px; letter-spacing: 3px; color: var(--gold);
-}
-.conn-indicator {
-  display: flex; align-items: center; gap: 8px;
-  font-size: 11px; font-weight: 700; letter-spacing: 1px;
-  color: var(--gray);
-}
-.conn-dot {
-  width: 8px; height: 8px; border-radius: 50%;
-  background: #4ade80; box-shadow: 0 0 8px #4ade80;
-  animation: pulse 2s infinite;
-}
-.conn-dot.off { background: var(--red); box-shadow: 0 0 8px var(--red); animation: none; }
-@keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
-
-.settings-btn {
-  width: 100%;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 8px;
-  padding: 8px; color: var(--gray);
-  font-family: 'Nunito', sans-serif;
-  font-size: 12px; font-weight: 700; letter-spacing: 1px;
-  cursor: pointer; margin-top: 8px;
-  transition: all 0.2s;
-}
-.settings-btn:hover { border-color: var(--gold); color: var(--gold); }
+/* ── SIDEBAR ── */
+.sidebar{width:210px;flex-shrink:0;background:var(--dark);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
+.sb-logo{padding:16px 14px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.sb-logo-icon{width:44px;height:44px;background:linear-gradient(135deg,var(--gold),#e09000);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 16px rgba(245,168,0,0.35);flex-shrink:0;}
+.sb-logo-text .name{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:var(--gold);line-height:1;}
+.sb-logo-text .tag{font-size:9px;letter-spacing:2px;color:var(--gray);text-transform:uppercase;}
+.sb-nav{flex:1;padding:10px 0;overflow-y:auto;}
+.sb-nav::-webkit-scrollbar{display:none;}
+.sb-section{padding:8px 14px 4px;font-size:9px;font-weight:800;letter-spacing:2.5px;color:rgba(245,168,0,0.5);text-transform:uppercase;}
+.sb-item{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;border-left:3px solid transparent;transition:all .2s;position:relative;}
+.sb-item:hover{background:var(--gold-dim);border-left-color:rgba(245,168,0,0.3);}
+.sb-item.active{background:var(--gold-dim);border-left-color:var(--gold);}
+.sb-item .icon{font-size:16px;width:22px;text-align:center;}
+.sb-item .label{font-size:13px;font-weight:700;color:rgba(255,255,255,0.65);}
+.sb-item.active .label{color:var(--gold);}
+.sb-item .badge{margin-left:auto;background:var(--gold);color:#000;font-size:10px;font-weight:900;padding:2px 7px;border-radius:20px;min-width:20px;text-align:center;}
+.sb-item .badge-red{background:var(--red);color:#fff;}
+.sb-bottom{padding:12px;border-top:1px solid var(--border);}
+.sb-machine{background:var(--gold-dim);border:1.5px solid var(--border);border-radius:10px;padding:9px 12px;margin-bottom:8px;}
+.sb-machine .ml{font-size:9px;letter-spacing:2px;color:var(--gray);margin-bottom:2px;}
+.sb-machine .mn{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:3px;color:var(--gold);}
+.conn-row{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;letter-spacing:1px;}
+.cdot{width:8px;height:8px;border-radius:50%;background:#4ade80;box-shadow:0 0 7px #4ade80;animation:pulse 2s infinite;}
+.cdot.off{background:var(--red);box-shadow:0 0 7px var(--red);animation:none;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+.sb-settings{width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:7px;color:var(--gray);font-family:'Nunito',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;cursor:pointer;margin-top:8px;transition:all .2s;}
+.sb-settings:hover{border-color:var(--gold);color:var(--gold);}
 
 /* ── CENTER MENU ── */
-.menu-area {
-  flex: 1; display: flex; flex-direction: column;
-  overflow: hidden;
-  background: var(--black);
-}
+.menu-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden;}
 
-.menu-header {
-  padding: 16px 24px 12px;
-  border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: space-between;
-  flex-shrink: 0;
-  background: linear-gradient(to bottom, rgba(20,15,0,0.8), transparent);
-  position: relative;
-}
-.menu-big-title {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 48px; letter-spacing: 4px;
-  line-height: 0.85;
-  position: relative;
-}
-.menu-big-title .line1 { color: var(--white); display: block; }
-.menu-big-title .line2 {
-  color: var(--gold);
-  text-shadow: 0 2px 0 #7a5000;
-  display: block;
-}
+/* Header */
+.menu-header{padding:14px 20px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:linear-gradient(to bottom,rgba(20,13,0,.9),transparent);}
+.menu-title{font-family:'Bebas Neue',sans-serif;line-height:.9;}
+.menu-title .l1{font-size:46px;letter-spacing:4px;color:#fff;display:block;}
+.menu-title .l2{font-size:46px;letter-spacing:4px;color:var(--gold);text-shadow:0 2px 0 #7a5000;display:block;}
+.search-wrap{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.05);border:1.5px solid var(--border);border-radius:12px;padding:9px 13px;width:220px;transition:border-color .2s;}
+.search-wrap:focus-within{border-color:var(--gold);}
+.search-wrap input{flex:1;background:transparent;border:none;color:#fff;font-family:'Nunito',sans-serif;font-size:13px;outline:none;}
+.search-wrap input::placeholder{color:rgba(255,255,255,0.25);}
+.search-wrap span{color:var(--gold);font-size:15px;}
 
-.search-bar {
-  display: flex; align-items: center; gap: 10px;
-  background: rgba(255,255,255,0.05);
-  border: 1.5px solid var(--border);
-  border-radius: 12px;
-  padding: 10px 14px;
-  width: 240px;
-  transition: border-color 0.2s;
-}
-.search-bar:focus-within { border-color: var(--gold); }
-.search-bar input {
-  flex: 1; background: transparent; border: none;
-  color: var(--white);
-  font-family: 'Nunito', sans-serif; font-size: 13px;
-  outline: none;
-}
-.search-bar input::placeholder { color: rgba(255,255,255,0.3); }
-.search-bar span { color: var(--gold); font-size: 16px; }
+/* Top tabs */
+.top-tabs{display:flex;gap:4px;padding:8px 20px;border-bottom:1px solid var(--border);flex-shrink:0;overflow-x:auto;scrollbar-width:none;}
+.top-tabs::-webkit-scrollbar{display:none;}
+.ttab{padding:5px 16px;border-radius:20px;font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;border:1.5px solid transparent;color:rgba(255,255,255,0.45);transition:all .2s;white-space:nowrap;background:transparent;font-family:'Nunito',sans-serif;}
+.ttab:hover{color:var(--gold);border-color:rgba(245,168,0,0.25);}
+.ttab.active{background:var(--gold);color:#000;border-color:var(--gold);box-shadow:0 4px 14px rgba(245,168,0,0.35);}
 
-/* TOP CATEGORY TABS */
-.top-tabs {
-  display: flex; gap: 4px;
-  padding: 10px 24px;
-  border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-.top-tabs::-webkit-scrollbar { display: none; }
-.top-tab {
-  padding: 6px 18px;
-  border-radius: 20px;
-  font-size: 12px; font-weight: 800; letter-spacing: 1.5px;
-  text-transform: uppercase;
-  cursor: pointer; border: 1.5px solid transparent;
-  color: rgba(255,255,255,0.5);
-  transition: all 0.2s; white-space: nowrap;
-  background: transparent;
-  font-family: 'Nunito', sans-serif;
-}
-.top-tab:hover { color: var(--gold); border-color: rgba(245,168,0,0.3); }
-.top-tab.active {
-  background: var(--gold);
-  color: #000; border-color: var(--gold);
-  box-shadow: 0 4px 16px rgba(245,168,0,0.4);
-}
+/* Grid */
+.grid-wrap{flex:1;overflow-y:auto;padding:14px 20px 20px;}
+.grid-wrap::-webkit-scrollbar{width:4px;}
+.grid-wrap::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+.menu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;}
+.sec-sep{grid-column:1/-1;display:flex;align-items:center;gap:10px;margin:4px 0 2px;}
+.sec-sep-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;color:var(--gold);white-space:nowrap;}
+.sec-sep-line{flex:1;height:1px;background:linear-gradient(to right,rgba(245,168,0,0.35),transparent);}
 
-/* MENU GRID */
-.menu-grid-wrap {
-  flex: 1; overflow-y: auto; padding: 16px 24px 20px;
-}
-.menu-grid-wrap::-webkit-scrollbar { width: 4px; }
-.menu-grid-wrap::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+/* Item card */
+.icard{background:var(--card);border:1.5px solid rgba(255,255,255,0.07);border-radius:14px;overflow:hidden;cursor:pointer;transition:all .25s;position:relative;}
+.icard:hover{border-color:var(--gold);transform:translateY(-3px);box-shadow:0 10px 28px rgba(0,0,0,.5),0 0 16px rgba(245,168,0,.12);}
+.icard.in-cart{border-color:var(--gold);box-shadow:0 0 18px rgba(245,168,0,.18);}
+.icard-img{height:125px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1a1a1a,#222);position:relative;overflow:hidden;}
+.icard-img img{width:100%;height:100%;object-fit:cover;transition:transform .3s;}
+.icard:hover .icard-img img{transform:scale(1.06);}
+.icard-img .emoji-ph{font-size:52px;}
+.icard-img::after{content:'';position:absolute;bottom:0;left:0;right:0;height:40px;background:linear-gradient(to top,var(--card),transparent);}
+.best-tag{position:absolute;top:7px;left:7px;background:var(--gold);color:#000;font-size:8px;font-weight:900;letter-spacing:1.5px;padding:3px 8px;border-radius:4px;text-transform:uppercase;z-index:2;display:flex;align-items:center;gap:3px;}
+.qty-badge{position:absolute;top:7px;right:7px;background:var(--gold);color:#000;border-radius:50%;width:22px;height:22px;font-size:11px;font-weight:900;display:none;align-items:center;justify-content:center;z-index:2;}
+.icard.in-cart .qty-badge{display:flex;}
+.icard-body{padding:9px 11px 11px;}
+.icard-name{font-size:12px;font-weight:800;color:#fff;line-height:1.2;margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px;}
+.icard-prices{display:flex;align-items:center;gap:7px;margin-bottom:8px;}
+.icard-price{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;color:var(--gold);}
+.icard-old{font-size:10px;color:var(--gray);text-decoration:line-through;}
+.icard-foot{display:flex;align-items:center;justify-content:space-between;}
+.icard-desc{font-size:10px;color:var(--gray);font-weight:600;flex:1;margin-right:6px;line-height:1.3;}
+.add-btn{width:30px;height:30px;background:var(--gold);border:none;border-radius:50%;color:#000;font-size:19px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;box-shadow:0 4px 10px rgba(245,168,0,.35);flex-shrink:0;line-height:1;}
+.add-btn:hover{transform:scale(1.18);background:var(--gold2);}
+.no-result{grid-column:1/-1;text-align:center;padding:60px;color:var(--gray);font-size:16px;font-weight:700;letter-spacing:2px;}
 
-.menu-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
-  gap: 14px;
-}
-
-/* ITEM CARD */
-.item-card {
-  background: var(--card);
-  border: 1.5px solid rgba(255,255,255,0.07);
-  border-radius: 16px;
-  overflow: hidden;
-  cursor: pointer;
-  transition: all 0.25s;
-  position: relative;
-}
-.item-card:hover {
-  border-color: var(--gold);
-  transform: translateY(-4px);
-  box-shadow: 0 12px 30px rgba(0,0,0,0.5), 0 0 20px rgba(245,168,0,0.15);
-}
-.item-card.in-cart {
-  border-color: var(--gold);
-  box-shadow: 0 0 20px rgba(245,168,0,0.2);
-}
-
-.card-img {
-  height: 130px;
-  background: linear-gradient(135deg, #1a1a1a, #222);
-  display: flex; align-items:center; justify-content:center;
-  font-size: 56px;
-  position: relative;
-  overflow: hidden;
-}
-.card-img::after {
-  content:''; position:absolute; bottom:0; left:0; right:0; height:40px;
-  background: linear-gradient(to top, var(--card), transparent);
-}
-.best-seller-tag {
-  position: absolute; top: 8px; left: 8px;
-  background: var(--gold);
-  color: #000;
-  font-size: 8px; font-weight: 900; letter-spacing: 1.5px;
-  padding: 3px 8px; border-radius: 4px;
-  text-transform: uppercase;
-  display: flex; align-items: center; gap: 3px;
-}
-
-.card-body { padding: 10px 12px 12px; }
-.card-name {
-  font-size: 13px; font-weight: 800;
-  color: var(--white); line-height: 1.2;
-  margin-bottom: 6px; text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-.card-prices { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
-.card-price {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 17px; letter-spacing: 1px;
-  color: var(--gold);
-}
-.card-old-price {
-  font-size: 11px; color: var(--gray);
-  text-decoration: line-through;
-}
-
-.card-footer { display: flex; align-items: center; justify-content: space-between; }
-.add-btn {
-  width: 32px; height: 32px;
-  background: var(--gold);
-  border: none; border-radius: 50%;
-  color: #000; font-size: 20px; font-weight: 900;
-  cursor: pointer; display: flex; align-items:center; justify-content:center;
-  transition: all 0.2s;
-  box-shadow: 0 4px 12px rgba(245,168,0,0.4);
-  line-height: 1;
-}
-.add-btn:hover { transform: scale(1.15); background: var(--gold2); box-shadow: 0 6px 20px rgba(245,168,0,0.6); }
-
-.qty-badge {
-  position: absolute; top: 8px; right: 8px;
-  background: var(--gold);
-  color: #000; border-radius: 50%;
-  width: 22px; height: 22px;
-  font-size: 11px; font-weight: 900;
-  display: none; align-items:center; justify-content:center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
-}
-.item-card.in-cart .qty-badge { display: flex; }
-
-/* ── RIGHT CART ── */
-.cart-panel {
-  width: 260px; flex-shrink: 0;
-  background: var(--dark);
-  border-left: 2px solid var(--border);
-  display: flex; flex-direction: column;
-  overflow: hidden;
-}
-
-.cart-header {
-  padding: 16px 18px 14px;
-  border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; gap: 10px;
-}
-.cart-icon-wrap {
-  width: 36px; height: 36px;
-  background: var(--gold-dim);
-  border: 1.5px solid var(--border);
-  border-radius: 10px;
-  display: flex; align-items:center; justify-content:center;
-  font-size: 18px;
-  position: relative;
-}
-.cart-badge {
-  position:absolute; top:-6px; right:-6px;
-  background: var(--red); color:#fff;
-  border-radius:50%; width:16px; height:16px;
-  font-size:9px; font-weight:900;
-  display:flex; align-items:center; justify-content:center;
-}
-.cart-title-text {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 20px; letter-spacing: 3px; color: var(--white);
-}
-
-.cart-items {
-  flex: 1; overflow-y: auto; padding: 12px;
-}
-.cart-items::-webkit-scrollbar { width: 3px; }
-.cart-items::-webkit-scrollbar-thumb { background: var(--border); }
-
-.cart-empty {
-  display: flex; flex-direction: column;
-  align-items:center; justify-content:center;
-  height: 100%; gap: 12px;
-  color: var(--gray);
-}
-.cart-empty-icon { font-size: 48px; opacity: 0.3; }
-.cart-empty-text {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 16px; letter-spacing: 2px;
-  text-align: center; line-height: 1.4;
-  color: rgba(255,255,255,0.2);
-}
-.cart-empty-sub { font-size: 11px; color: rgba(255,255,255,0.15); text-align:center; }
-
-.cart-item {
-  display: flex; gap: 10px; align-items: flex-start;
-  padding: 10px 8px;
-  border-radius: 10px;
-  border: 1px solid transparent;
-  margin-bottom: 6px;
-  transition: all 0.2s;
-}
-.cart-item:hover { background: rgba(245,168,0,0.05); border-color: var(--border); }
-.ci-em { font-size: 28px; width: 36px; text-align: center; flex-shrink: 0; line-height: 1; }
-.ci-info { flex: 1; min-width: 0; }
-.ci-name { font-size: 12px; font-weight: 800; color: var(--white); line-height: 1.2; text-transform: uppercase; }
-.ci-price { font-family: 'Bebas Neue', sans-serif; font-size: 14px; color: var(--gold); margin-top: 3px; }
-.ci-controls { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
-.ci-btn {
-  width: 24px; height: 24px;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 6px; color: var(--white);
-  font-size: 14px; cursor: pointer;
-  display: flex; align-items:center; justify-content:center;
-  transition: all 0.15s; font-weight: 700; line-height: 1;
-}
-.ci-btn:hover { background: var(--gold); color: #000; border-color: var(--gold); }
-.ci-qty { font-size: 14px; font-weight: 900; color: var(--gold); min-width: 16px; text-align: center; }
-
-.cart-note { padding: 0 12px 10px; }
-.note-label { font-size: 9px; font-weight: 800; letter-spacing: 2.5px; color: var(--gold); margin-bottom: 6px; text-transform: uppercase; }
-.note-input {
-  width: 100%;
-  background: rgba(255,255,255,0.04);
-  border: 1.5px solid var(--border);
-  border-radius: 8px;
-  color: var(--white);
-  padding: 8px 10px;
-  font-family: 'Nunito', sans-serif; font-size: 12px;
-  resize: none; outline: none;
-  transition: border-color 0.2s;
-}
-.note-input:focus { border-color: var(--gold); }
-.note-input::placeholder { color: rgba(255,255,255,0.2); }
-
-.cart-footer {
-  padding: 12px;
-  border-top: 1px solid var(--border);
-  background: linear-gradient(to top, rgba(245,168,0,0.05), transparent);
-}
-.total-row {
-  display: flex; justify-content:space-between; align-items:center;
-  margin-bottom: 6px;
-}
-.total-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; color: var(--gray); text-transform: uppercase; }
-.total-amount {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 22px; letter-spacing: 2px; color: var(--gold);
-}
-.total-unit { font-size: 12px; color: var(--gray); }
-
-.order-btn {
-  width: 100%;
-  background: linear-gradient(135deg, var(--gold) 0%, #e09000 100%);
-  border: none; border-radius: 12px;
-  padding: 14px;
-  color: #000;
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 20px; letter-spacing: 4px;
-  cursor: pointer;
-  box-shadow: 0 6px 20px rgba(245,168,0,0.4), 0 2px 0 #7a5000;
-  transition: all 0.2s;
-  position: relative; overflow: hidden;
-  display: flex; align-items:center; justify-content:center; gap: 8px;
-}
-.order-btn::after { content:''; position:absolute; inset:0; background:linear-gradient(to bottom,rgba(255,255,255,0.15),transparent); }
-.order-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(245,168,0,0.5); }
-.order-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+/* ── CART PANEL ── */
+.cart-panel{width:255px;flex-shrink:0;background:var(--dark);border-left:1px solid var(--border);display:flex;flex-direction:column;}
+.cp-header{padding:14px 16px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.cp-icon{width:36px;height:36px;background:var(--gold-dim);border:1.5px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;position:relative;}
+.cp-badge{position:absolute;top:-6px;right:-6px;background:var(--red);color:#fff;border-radius:50%;width:16px;height:16px;font-size:9px;font-weight:900;display:flex;align-items:center;justify-content:center;}
+.cp-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;}
+.cp-items{flex:1;overflow-y:auto;padding:10px;}
+.cp-items::-webkit-scrollbar{width:3px;}
+.cp-items::-webkit-scrollbar-thumb{background:var(--border);}
+.cp-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:10px;}
+.cp-empty-icon{font-size:44px;opacity:.2;}
+.cp-empty-text{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;color:rgba(255,255,255,.18);text-align:center;line-height:1.4;}
+.cp-empty-sub{font-size:11px;color:rgba(255,255,255,.12);text-align:center;}
+.cp-item{display:flex;gap:9px;align-items:flex-start;padding:9px 7px;border-radius:9px;border:1px solid transparent;margin-bottom:5px;transition:all .2s;}
+.cp-item:hover{background:rgba(245,168,0,.04);border-color:var(--border);}
+.cp-item-img{width:34px;height:34px;border-radius:7px;overflow:hidden;flex-shrink:0;background:#222;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.cp-item-img img{width:100%;height:100%;object-fit:cover;}
+.cp-info{flex:1;min-width:0;}
+.cp-name{font-size:12px;font-weight:800;color:#fff;line-height:1.2;text-transform:uppercase;}
+.cp-price{font-family:'Bebas Neue',sans-serif;font-size:13px;color:var(--gold);margin-top:2px;}
+.cp-ctrl{display:flex;align-items:center;gap:4px;flex-shrink:0;}
+.cp-btn{width:23px;height:23px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:#fff;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;font-weight:700;line-height:1;}
+.cp-btn:hover{background:var(--gold);color:#000;border-color:var(--gold);}
+.cp-qty{font-size:13px;font-weight:900;color:var(--gold);min-width:15px;text-align:center;}
+.cp-note{padding:0 10px 8px;}
+.cp-note-label{font-size:9px;font-weight:800;letter-spacing:2.5px;color:var(--gold);margin-bottom:5px;text-transform:uppercase;}
+.cp-note textarea{width:100%;background:rgba(255,255,255,.04);border:1.5px solid var(--border);border-radius:8px;color:#fff;padding:7px 9px;font-family:'Nunito',sans-serif;font-size:12px;resize:none;outline:none;transition:border-color .2s;}
+.cp-note textarea:focus{border-color:var(--gold);}
+.cp-note textarea::placeholder{color:rgba(255,255,255,.2);}
+.cp-footer{padding:10px;border-top:1px solid var(--border);background:linear-gradient(to top,rgba(245,168,0,.04),transparent);}
+.cp-total-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;}
+.cp-total-label{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--gray);text-transform:uppercase;}
+.cp-total-amount{font-family:'Bebas Neue',sans-serif;font-size:21px;letter-spacing:2px;color:var(--gold);}
+.cp-total-unit{font-size:11px;color:var(--gray);}
+.order-btn{width:100%;background:linear-gradient(135deg,var(--gold),#e09000);border:none;border-radius:11px;padding:13px;color:#000;font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:4px;cursor:pointer;box-shadow:0 6px 18px rgba(245,168,0,.35),0 2px 0 #7a5000;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px;position:relative;overflow:hidden;}
+.order-btn::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(255,255,255,.15),transparent);}
+.order-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 10px 26px rgba(245,168,0,.5);}
+.order-btn:disabled{opacity:.3;cursor:not-allowed;transform:none;}
 
 /* ── TOAST ── */
-.toast {
-  position: fixed; bottom: 28px; left: 50%;
-  transform: translateX(-50%) translateY(80px);
-  background: linear-gradient(135deg, #4ade80, #22c55e);
-  color: #000;
-  padding: 12px 28px; border-radius: 12px;
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 16px; letter-spacing: 3px;
-  transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
-  z-index: 999;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.5);
-}
-.toast.show { transform: translateX(-50%) translateY(0); }
-
-/* Section header in grid */
-.section-sep {
-  grid-column: 1/-1;
-  display: flex; align-items: center; gap: 12px;
-  margin: 4px 0;
-}
-.section-sep-title {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 22px; letter-spacing: 4px; color: var(--gold);
-  white-space: nowrap;
-}
-.section-sep-line {
-  flex: 1; height: 1px;
-  background: linear-gradient(to right, rgba(245,168,0,0.4), transparent);
-}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(70px);background:linear-gradient(135deg,#4ade80,#22c55e);color:#000;padding:11px 26px;border-radius:12px;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:3px;transition:transform .35s cubic-bezier(.4,0,.2,1);z-index:999;box-shadow:0 6px 22px rgba(0,0,0,.5);}
+.toast.show{transform:translateX(-50%) translateY(0);}
 </style>
 </head>
 <body>
 
-<!-- ══ SETUP SCREEN ══════════════════════════════════════ -->
-<div class="setup-screen" id="setupScreen">
-  <div class="setup-logo-big">AKNET</div>
-  <div class="setup-sub-title">FOOD ORDER SYSTEM</div>
+<!-- SETUP -->
+<div class="setup" id="setupScreen">
+  <div class="setup-logo">AKNET</div>
+  <div class="setup-sub">FOOD ORDER SYSTEM</div>
   <div class="setup-card">
-    <div class="setup-card-title">⚡ CẤU HÌNH KẾT NỐI</div>
-    <div class="field-group">
-      <label class="field-label">Địa chỉ IP máy tính tiền</label>
-      <input class="field-input" id="cfgIP" placeholder="192.168.1.100" type="text" />
-    </div>
-    <div class="field-group">
-      <label class="field-label">Cổng kết nối</label>
-      <input class="field-input" id="cfgPort" value="3456" type="number" />
-    </div>
-    <div class="field-group">
-      <label class="field-label">Số máy trạm này</label>
-      <input class="field-input" id="cfgMachine" value="01" maxlength="4" />
-    </div>
+    <div class="setup-title">⚡ CẤU HÌNH KẾT NỐI</div>
+    <div class="fl"><label>Địa chỉ IP máy tính tiền</label><input id="cfgIP" placeholder="192.168.1.100" type="text"/></div>
+    <div class="fl"><label>Cổng kết nối</label><input id="cfgPort" value="3456" type="number"/></div>
+    <div class="fl"><label>Số máy trạm này</label><input id="cfgMachine" value="01" maxlength="4"/></div>
     <button class="connect-btn" onclick="doConnect()">KẾT NỐI NGAY</button>
-    <div class="conn-status" id="connStatus"></div>
+    <div class="setup-status" id="setupStatus"></div>
   </div>
 </div>
 
-<!-- ══ MAIN APP ══════════════════════════════════════════ -->
-<div class="app-screen" id="appScreen">
+<!-- APP -->
+<div class="app" id="appScreen">
 
-  <!-- LEFT SIDEBAR -->
+  <!-- SIDEBAR -->
   <div class="sidebar">
-    <div class="sidebar-logo">
-      <div class="logo-icon">🎮</div>
-      <div class="logo-text">
-        <div class="logo-name">AKNET</div>
-        <div class="logo-tagline">Food Order</div>
+    <div class="sb-logo">
+      <div class="sb-logo-icon">🎮</div>
+      <div class="sb-logo-text">
+        <div class="name">AKNET</div>
+        <div class="tag">Food Order</div>
       </div>
     </div>
-
-    <div class="sidebar-cats" id="sidebarCats"></div>
-
-    <div class="sidebar-bottom">
-      <div class="machine-display">
-        <div class="machine-label">MÁY TRẠM</div>
-        <div class="machine-name" id="machineDisplay">MÁY 01</div>
-      </div>
-      <div class="conn-indicator">
-        <div class="conn-dot" id="connDot"></div>
-        <span id="connLabel">ĐÃ KẾT NỐI</span>
-      </div>
-      <button class="settings-btn" onclick="showSetup()">⚙ CÀI ĐẶT KẾT NỐI</button>
+    <div class="sb-nav">
+      <div class="sb-section">MENU</div>
+      <div class="sb-item active" onclick="showPage('menu',this)"><span class="icon">🍽</span><span class="label">Food & Drink</span></div>
+      <div class="sb-section">TÍNH NĂNG</div>
+      <div class="sb-item" onclick="showPage('checkin',this)"><span class="icon">📅</span><span class="label">Điểm Danh</span></div>
+      <div class="sb-item" onclick="showPage('spin',this)"><span class="icon">🎡</span><span class="label">Vòng Quay May Mắn</span></div>
+      <div class="sb-item" onclick="showPage('history',this)"><span class="icon">🕐</span><span class="label">Lịch Sử Đơn Hàng</span></div>
+      <div class="sb-item" onclick="callStaff()"><span class="icon">🔔</span><span class="label">Gọi Nhân Viên</span></div>
+    </div>
+    <div class="sb-bottom">
+      <div class="sb-machine"><div class="ml">MÁY TRẠM</div><div class="mn" id="machineDisplay">MÁY 01</div></div>
+      <div class="conn-row"><div class="cdot" id="connDot"></div><span id="connLabel" style="color:#4ade80">ĐÃ KẾT NỐI</span></div>
+      <button class="sb-settings" onclick="showSetup()">⚙ CÀI ĐẶT KẾT NỐI</button>
     </div>
   </div>
 
-  <!-- CENTER MENU -->
-  <div class="menu-area">
+  <!-- MENU PAGE -->
+  <div class="menu-wrap" id="page-menu">
     <div class="menu-header">
-      <div class="menu-big-title">
-        <span class="line1">MENU</span>
-        <span class="line2">ORDER</span>
-      </div>
-      <div class="search-bar">
-        <span>🔍</span>
-        <input type="text" id="searchInput" placeholder="Tìm kiếm..." oninput="doSearch()" />
-      </div>
+      <div class="menu-title"><span class="l1">MENU</span><span class="l2">ORDER</span></div>
+      <div class="search-wrap"><span>🔍</span><input type="text" id="searchInput" placeholder="Tìm kiếm..." oninput="doSearch()"/></div>
     </div>
-
     <div class="top-tabs" id="topTabs"></div>
+    <div class="grid-wrap"><div class="menu-grid" id="menuGrid"></div></div>
+  </div>
 
-    <div class="menu-grid-wrap">
-      <div class="menu-grid" id="menuGrid"></div>
+  <!-- CHECKIN PAGE -->
+  <div class="menu-wrap" id="page-checkin" style="display:none;align-items:center;justify-content:center;">
+    <div style="text-align:center;padding:40px;">
+      <div style="font-size:80px;margin-bottom:20px;">📅</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:4px;color:var(--gold);margin-bottom:12px;">ĐIỂM DANH HÀNG NGÀY</div>
+      <div style="font-size:14px;color:var(--gray);margin-bottom:30px;">Điểm danh mỗi ngày để nhận thưởng đặc biệt!</div>
+      <div id="checkinStatus"></div>
+      <button onclick="doCheckin()" style="background:linear-gradient(135deg,var(--gold),#e09000);border:none;border-radius:14px;padding:16px 40px;color:#000;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:4px;cursor:pointer;box-shadow:0 6px 20px rgba(245,168,0,.4);">ĐIỂM DANH NGAY</button>
+      <div style="margin-top:24px;font-size:13px;color:var(--gray);">Chuỗi điểm danh: <span id="streakCount" style="color:var(--gold);font-weight:900;font-size:18px;">0</span> ngày</div>
     </div>
   </div>
 
-  <!-- RIGHT CART -->
+  <!-- SPIN PAGE -->
+  <div class="menu-wrap" id="page-spin" style="display:none;align-items:center;justify-content:center;">
+    <div style="text-align:center;padding:30px;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:4px;color:var(--gold);margin-bottom:20px;">🎡 VÒNG QUAY MAY MẮN</div>
+      <canvas id="spinWheel" width="300" height="300" style="border-radius:50%;box-shadow:0 0 40px rgba(245,168,0,.3);cursor:pointer;"></canvas>
+      <div style="margin-top:16px;">
+        <button id="spinBtn" onclick="spinWheel()" style="background:linear-gradient(135deg,var(--gold),#e09000);border:none;border-radius:14px;padding:14px 36px;color:#000;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;cursor:pointer;box-shadow:0 6px 20px rgba(245,168,0,.4);">QUAY NGAY</button>
+      </div>
+      <div id="spinResult" style="margin-top:16px;font-size:16px;font-weight:800;color:var(--gold);min-height:24px;"></div>
+      <div style="margin-top:8px;font-size:12px;color:var(--gray);">Lượt quay còn lại hôm nay: <span id="spinLeft" style="color:var(--gold);font-weight:900;">1</span></div>
+    </div>
+  </div>
+
+  <!-- HISTORY PAGE -->
+  <div class="menu-wrap" id="page-history" style="display:none;flex-direction:column;">
+    <div style="padding:16px 20px;border-bottom:1px solid var(--border);font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:4px;color:var(--gold);">📋 LỊCH SỬ ĐƠN HÀNG</div>
+    <div id="historyList" style="flex:1;overflow-y:auto;padding:16px 20px;"></div>
+  </div>
+
+  <!-- CART -->
   <div class="cart-panel">
-    <div class="cart-header">
-      <div class="cart-icon-wrap">
-        🛒
-        <div class="cart-badge" id="cartBadge" style="display:none">0</div>
-      </div>
-      <div class="cart-title-text">GIỎ HÀNG</div>
+    <div class="cp-header">
+      <div class="cp-icon">🛒<div class="cp-badge" id="cpBadge" style="display:none">0</div></div>
+      <div class="cp-title">GIỎ HÀNG</div>
     </div>
-
-    <div class="cart-items" id="cartItems">
-      <div class="cart-empty">
-        <div class="cart-empty-icon">🛒</div>
-        <div class="cart-empty-text">GIỎ HÀNG<br>ĐANG TRỐNG</div>
-        <div class="cart-empty-sub">Chọn món ở menu để thêm vào giỏ</div>
+    <div class="cp-items" id="cpItems">
+      <div class="cp-empty">
+        <div class="cp-empty-icon">🛒</div>
+        <div class="cp-empty-text">GIỎ HÀNG<br>ĐANG TRỐNG</div>
+        <div class="cp-empty-sub">Chọn món để thêm vào giỏ</div>
       </div>
     </div>
-
-    <div class="cart-note">
-      <div class="note-label">Ghi Chú</div>
-      <textarea class="note-input" id="orderNote" rows="2" placeholder="Ghi chú cho nhân viên..."></textarea>
+    <div class="cp-note">
+      <div class="cp-note-label">Ghi Chú</div>
+      <textarea id="orderNote" rows="2" placeholder="Ghi chú cho nhân viên..."></textarea>
     </div>
-
-    <div class="cart-footer">
-      <div class="total-row">
-        <span class="total-label">Tạm Tính</span>
-        <span>
-          <span class="total-amount" id="totalAmount">0</span>
-          <span class="total-unit"> VND</span>
-        </span>
+    <div class="cp-footer">
+      <div class="cp-total-row">
+        <span class="cp-total-label">Tạm Tính</span>
+        <span><span class="cp-total-amount" id="totalAmt">0</span><span class="cp-total-unit"> VND</span></span>
       </div>
-      <button class="order-btn" id="orderBtn" onclick="sendOrder()" disabled>
-        <span>THANH TOÁN</span> <span>»</span>
-      </button>
+      <button class="order-btn" id="orderBtn" onclick="sendOrder()" disabled>THANH TOÁN <span>»</span></button>
     </div>
   </div>
 </div>
@@ -688,43 +277,17 @@ body::before {
 <div class="toast" id="toast">✅ ORDER ĐÃ GỬI!</div>
 
 <script>
-const MENU = [
-  // BEST SELLER
-  { id:1,  cat:'Best Seller', name:'Mì Nước',           price:15000, oldPrice:20000, emoji:'🍜', desc:'Mì nước hảo hảo nóng hổi', best:true },
-  { id:2,  cat:'Best Seller', name:'Xúc Xích Đức Nướng',price:15000, emoji:'🌭', desc:'Xúc xích nướng thơm ngon', best:false },
-  { id:3,  cat:'Best Seller', name:'Cá Viên Chiên Thập Cẩm', price:55000, emoji:'🍢', desc:'Cá viên chiên giòn rụm', best:true },
-  { id:4,  cat:'Best Seller', name:'Gà Rán',            price:25000, emoji:'🍗', desc:'Gà rán giòn, hot nhất quán', best:false },
-  // ĐỒ ĂN
-  { id:5,  cat:'Đồ Ăn', name:'Khoai Tây Chiên',        price:25000, emoji:'🍟', desc:'Khoai tây chiên giòn' },
-  { id:6,  cat:'Đồ Ăn', name:'Mì Trứng Nước',          price:25000, oldPrice:30000, emoji:'🥚', desc:'Mì trứng nước đặc biệt', best:true },
-  { id:7,  cat:'Đồ Ăn', name:'Mì Trứng Nước Sing',     price:45000, emoji:'🍳', desc:'Mì Singapore cao cấp' },
-  { id:8,  cat:'Đồ Ăn', name:'Cơm Chiên Chiên Trứng',  price:35000, oldPrice:40000, emoji:'🍚', desc:'Cơm chiên trứng đậm đà' },
-  { id:9,  cat:'Đồ Ăn', name:'Bánh Mì Thịt',           price:20000, emoji:'🥖', desc:'Bánh mì thịt nguội pate' },
-  { id:10, cat:'Đồ Ăn', name:'Khô Bò Cay',             price:20000, emoji:'🥩', desc:'Khô bò cay xé nhỏ' },
-  // NƯỚC UỐNG
-  { id:11, cat:'Nước Uống', name:'Coca Cola',           price:15000, emoji:'🥤', desc:'Coca lon 330ml lạnh' },
-  { id:12, cat:'Nước Uống', name:'Cà Phê Đen Đá',       price:20000, emoji:'☕', desc:'Cà phê đen đá đậm đà' },
-  { id:13, cat:'Nước Uống', name:'Bạc Xỉu',             price:22000, emoji:'🧋', desc:'Bạc xỉu sữa ngọt thơm' },
-  { id:14, cat:'Nước Uống', name:'Trà Đào',             price:20000, emoji:'🍑', desc:'Trà đào đường phèn mát' },
-  { id:15, cat:'Nước Uống', name:'Hồng Trà Sữa',        price:25000, emoji:'🧋', desc:'Hồng trà sữa trân châu' },
-  { id:16, cat:'Nước Uống', name:'Nước Suối',           price:10000, emoji:'💧', desc:'Aquafina 500ml' },
-  // NƯỚC ÉP
-  { id:17, cat:'Nước Ép', name:'Nước Ép Cam',           price:25000, emoji:'🍊', desc:'Nước ép cam tươi nguyên chất' },
-  { id:18, cat:'Nước Ép', name:'Nước Ép Dưa Hấu',       price:22000, emoji:'🍉', desc:'Dưa hấu ép lạnh ngọt mát' },
-  { id:19, cat:'Nước Ép', name:'Sinh Tố Xoài',          price:28000, emoji:'🥭', desc:'Sinh tố xoài sữa béo ngậy' },
-  // GIỜ CHƠI
-  { id:20, cat:'Giờ Chơi', name:'Nạp 1 Tiếng',         price:10000, emoji:'⏱', desc:'Thêm 1 giờ chơi game' },
-  { id:21, cat:'Giờ Chơi', name:'Nạp 2 Tiếng',         price:18000, emoji:'⏰', desc:'2 giờ – tiết kiệm hơn' },
-  { id:22, cat:'Giờ Chơi', name:'Nạp 5 Tiếng',         price:40000, emoji:'🕐', desc:'Gói 5 giờ siêu rẻ' },
-];
-
-const ALL_CATS = ['Tất Cả', ...new Set(MENU.map(i=>i.cat))];
-let cart = {}, activeTopCat = 'Tất Cả', activeSideCat = 'Tất Cả';
-let ws = null, config = {};
+// ── State ──────────────────────────────────────────────────────────────────────
+let MENU = [];
+let cart = {}, config = {}, ws = null;
+let activeCat = 'Tất Cả';
 const fmt = n => n.toLocaleString('vi-VN');
 
-// ── Init ──────────────────────────────────────────────────
+// ── Init ───────────────────────────────────────────────────────────────────────
 async function init() {
+  initSpin();
+  loadCheckinState();
+  loadHistory();
   if (window.aknet) {
     config = await window.aknet.getConfig();
     if (config.serverIP) {
@@ -732,39 +295,54 @@ async function init() {
       document.getElementById('cfgPort').value = config.serverPort || 3456;
       document.getElementById('cfgMachine').value = config.machineId || '01';
       await doConnect(true);
-      return;
     }
   }
 }
 
+// ── Setup & Connect ────────────────────────────────────────────────────────────
 async function doConnect(silent=false) {
   const ip = document.getElementById('cfgIP').value.trim();
   const port = document.getElementById('cfgPort').value || 3456;
   const machine = document.getElementById('cfgMachine').value || '01';
-  if (!ip) { setStatus('Vui lòng nhập địa chỉ IP!','s-err'); return; }
-  setStatus('Đang kết nối...','s-loading');
+  if (!ip) { setSS('Vui lòng nhập địa chỉ IP!','s-err'); return; }
+  setSS('Đang kết nối...','s-loading');
   config = { serverIP:ip, serverPort:parseInt(port), machineId:machine };
   try {
     await connectWS(ip, port);
+    // Fetch menu từ server
+    await fetchMenu(ip, port);
     if (window.aknet) await window.aknet.saveConfig(config);
     document.getElementById('machineDisplay').textContent = 'MÁY ' + machine;
     document.getElementById('setupScreen').style.display = 'none';
     document.getElementById('appScreen').classList.add('visible');
-    buildSidebar(); buildTopTabs(); buildGrid(); updateCart();
+    buildTopTabs(); buildGrid(); updateCart();
   } catch(e) {
-    setStatus('❌ Không kết nối được! Kiểm tra lại IP.','s-err');
+    setSS('❌ Không kết nối được! Kiểm tra lại IP.','s-err');
   }
 }
-function setStatus(msg, cls) {
-  const el = document.getElementById('connStatus');
-  el.textContent = msg; el.className = 'conn-status '+cls;
+
+function setSS(msg, cls) {
+  const el = document.getElementById('setupStatus');
+  el.textContent = msg; el.className = 'setup-status '+cls;
 }
 function showSetup() {
   document.getElementById('appScreen').classList.remove('visible');
   document.getElementById('setupScreen').style.display = 'flex';
 }
 
-// ── WebSocket ──────────────────────────────────────────────
+// ── Fetch Menu từ server ───────────────────────────────────────────────────────
+async function fetchMenu(ip, port) {
+  try {
+    const r = await fetch(`http://${ip}:${port}/api/menu`);
+    const data = await r.json();
+    MENU = data;
+  } catch(e) {
+    console.log('Dung menu mac dinh');
+    MENU = getDefaultMenu();
+  }
+}
+
+// ── WebSocket ──────────────────────────────────────────────────────────────────
 function connectWS(ip, port) {
   return new Promise((resolve, reject) => {
     ws = new WebSocket(`ws://${ip}:${port}`);
@@ -772,91 +350,89 @@ function connectWS(ip, port) {
     ws.onopen = () => { clearTimeout(t); setConnDot(true); resolve(); };
     ws.onerror = () => { clearTimeout(t); reject(); };
     ws.onclose = () => { setConnDot(false); setTimeout(()=>reconnect(ip,port),4000); };
+    ws.onmessage = (e) => {
+      try {
+        const msg = JSON.parse(e.data);
+        // Nhận cập nhật menu từ cashier
+        if (msg.type === 'menu_updated') {
+          MENU = msg.menu;
+          buildTopTabs(); buildGrid();
+        }
+      } catch(err){}
+    };
   });
-}
-function reconnect(ip,port) {
-  try {
-    ws = new WebSocket(`ws://${ip}:${port}`);
-    ws.onopen = () => setConnDot(true);
-    ws.onerror = ()=>{};
-    ws.onclose = () => { setConnDot(false); setTimeout(()=>reconnect(ip,port),4000); };
-  } catch(e){}
-}
-function setConnDot(ok) {
-  const d = document.getElementById('connDot');
-  const l = document.getElementById('connLabel');
-  if(d) { d.className = 'conn-dot'+(ok?'':' off'); }
-  if(l) { l.textContent = ok ? 'ĐÃ KẾT NỐI' : 'MẤT KẾT NỐI'; l.style.color = ok ? '#4ade80' : '#e63030'; }
 }
 
-// ── Build UI ───────────────────────────────────────────────
-function buildSidebar() {
-  const wrap = document.getElementById('sidebarCats');
-  wrap.innerHTML = '';
-  ALL_CATS.forEach(cat => {
-    const count = cat==='Tất Cả' ? MENU.length : MENU.filter(i=>i.cat===cat).length;
-    const el = document.createElement('div');
-    el.className = 'cat-item' + (cat==='Tất Cả'?' active':'');
-    el.innerHTML = `<span class="cat-icon">${catIcon(cat)}</span><span class="cat-name">${cat}</span><span class="cat-count">${count}</span>`;
-    el.onclick = () => {
-      document.querySelectorAll('.cat-item').forEach(e=>e.classList.remove('active'));
-      document.querySelectorAll('.top-tab').forEach(e=>e.classList.remove('active'));
-      el.classList.add('active');
-      activeSideCat = activeTopCat = cat;
-      buildGrid();
+function reconnect(ip, port) {
+  try {
+    ws = new WebSocket(`ws://${ip}:${port}`);
+    ws.onopen = () => { setConnDot(true); fetchMenu(ip, port).then(()=>{ buildTopTabs(); buildGrid(); }); };
+    ws.onerror = ()=>{};
+    ws.onclose = () => { setConnDot(false); setTimeout(()=>reconnect(ip,port),4000); };
+    ws.onmessage = (e) => {
+      try {
+        const msg = JSON.parse(e.data);
+        if (msg.type === 'menu_updated') { MENU = msg.menu; buildTopTabs(); buildGrid(); }
+      } catch(err){}
     };
-    wrap.appendChild(el);
-  });
+  } catch(e){}
+}
+
+function setConnDot(ok) {
+  const d=document.getElementById('connDot'), l=document.getElementById('connLabel');
+  if(d){ d.className='cdot'+(ok?'':' off'); }
+  if(l){ l.textContent=ok?'ĐÃ KẾT NỐI':'MẤT KẾT NỐI'; l.style.color=ok?'#4ade80':'#e63030'; }
+}
+
+// ── Pages ──────────────────────────────────────────────────────────────────────
+function showPage(name, el) {
+  document.querySelectorAll('.menu-wrap').forEach(p => p.style.display='none');
+  const page = document.getElementById('page-'+name);
+  if (page) page.style.display = name==='menu' ? 'flex' : 'flex';
+  document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
+  if (el) el.classList.add('active');
+  if (name === 'history') renderHistory();
+}
+
+// ── Build Menu UI ──────────────────────────────────────────────────────────────
+function getAllCats() {
+  return ['Tất Cả', ...new Set(MENU.map(i=>i.cat))];
 }
 
 function buildTopTabs() {
   const wrap = document.getElementById('topTabs');
   wrap.innerHTML = '';
-  ALL_CATS.forEach(cat => {
+  getAllCats().forEach(cat => {
     const btn = document.createElement('button');
-    btn.className = 'top-tab' + (cat==='Tất Cả'?' active':'');
+    btn.className = 'ttab' + (cat===activeCat?' active':'');
     btn.textContent = cat.toUpperCase();
     btn.onclick = () => {
-      document.querySelectorAll('.top-tab').forEach(e=>e.classList.remove('active'));
-      document.querySelectorAll('.cat-item').forEach(e=>e.classList.remove('active'));
+      document.querySelectorAll('.ttab').forEach(b=>b.classList.remove('active'));
       btn.classList.add('active');
-      const sideItem = [...document.querySelectorAll('.cat-item')].find(e=>e.querySelector('.cat-name').textContent===cat);
-      if(sideItem) sideItem.classList.add('active');
-      activeTopCat = activeSideCat = cat;
-      buildGrid();
+      activeCat = cat; buildGrid();
     };
     wrap.appendChild(btn);
   });
-}
-
-function catIcon(cat) {
-  const map = {'Tất Cả':'🍽','Best Seller':'👑','Đồ Ăn':'🍜','Nước Uống':'🥤','Nước Ép':'🍊','Giờ Chơi':'⏱'};
-  return map[cat] || '📌';
 }
 
 function buildGrid(query='') {
   const grid = document.getElementById('menuGrid');
   grid.innerHTML = '';
   const filtered = MENU.filter(item => {
-    const catOk = activeTopCat==='Tất Cả' || item.cat===activeTopCat;
+    const catOk = activeCat==='Tất Cả' || item.cat===activeCat;
     const searchOk = !query || item.name.toLowerCase().includes(query.toLowerCase());
     return catOk && searchOk;
   });
+  if (!filtered.length) { grid.innerHTML='<div class="no-result">KHÔNG TÌM THẤY MÓN NÀO</div>'; return; }
 
-  if (!filtered.length) {
-    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--gray);font-size:16px;font-weight:700;letter-spacing:2px;">KHÔNG TÌM THẤY MÓN NÀO</div>`;
-    return;
-  }
-
-  // Group by category when showing all
-  const showAll = activeTopCat === 'Tất Cả' && !query;
+  const showAll = activeCat==='Tất Cả' && !query;
   if (showAll) {
     const grouped = {};
     filtered.forEach(i => { if(!grouped[i.cat]) grouped[i.cat]=[]; grouped[i.cat].push(i); });
     Object.entries(grouped).forEach(([cat, items]) => {
       const sep = document.createElement('div');
-      sep.className = 'section-sep';
-      sep.innerHTML = `<span class="section-sep-title">${catIcon(cat)} ${cat}</span><div class="section-sep-line"></div>`;
+      sep.className='sec-sep';
+      sep.innerHTML=`<span class="sec-sep-title">${cat}</span><div class="sec-sep-line"></div>`;
       grid.appendChild(sep);
       items.forEach(item => grid.appendChild(makeCard(item)));
     });
@@ -868,118 +444,259 @@ function buildGrid(query='') {
 function makeCard(item) {
   const qty = cart[item.id]?.qty || 0;
   const el = document.createElement('div');
-  el.className = 'item-card' + (qty>0?' in-cart':'');
+  el.className = 'icard' + (qty>0?' in-cart':'');
   el.id = 'card-'+item.id;
+
+  // Image: nếu có ảnh thật thì dùng, không thì dùng emoji
+  const imgHTML = item.image
+    ? `<img src="${item.image}" alt="${item.name}" onerror="this.style.display='none';this.nextSibling.style.display='flex'"/><span class="emoji-ph" style="display:none">${item.emoji||'🍽'}</span>`
+    : `<span class="emoji-ph">${item.emoji||'🍽'}</span>`;
+
   el.innerHTML = `
     <div class="qty-badge" id="qb-${item.id}">${qty||''}</div>
-    <div class="card-img">
-      ${item.best ? '<div class="best-seller-tag">👑 Best Seller</div>' : ''}
-      ${item.emoji}
+    <div class="icard-img">
+      ${item.best ? '<div class="best-tag">👑 Best Seller</div>' : ''}
+      ${imgHTML}
     </div>
-    <div class="card-body">
-      <div class="card-name">${item.name}</div>
-      <div class="card-prices">
-        <span class="card-price">${fmt(item.price)}</span>
-        ${item.oldPrice ? `<span class="card-old-price">${fmt(item.oldPrice)}</span>` : ''}
+    <div class="icard-body">
+      <div class="icard-name">${item.name}</div>
+      <div class="icard-prices">
+        <span class="icard-price">${fmt(item.price)}</span>
+        ${item.oldPrice ? `<span class="icard-old">${fmt(item.oldPrice)}</span>` : ''}
       </div>
-      <div class="card-footer">
-        <span style="font-size:10px;color:var(--gray);font-weight:600;">${item.desc}</span>
+      <div class="icard-foot">
+        <span class="icard-desc">${item.desc||''}</span>
         <button class="add-btn" onclick="addItem(${item.id},event)">+</button>
       </div>
     </div>`;
   return el;
 }
 
-function doSearch() {
-  const q = document.getElementById('searchInput').value;
-  buildGrid(q);
-}
+function doSearch() { buildGrid(document.getElementById('searchInput').value); }
 
-// ── Cart ───────────────────────────────────────────────────
+// ── Cart ───────────────────────────────────────────────────────────────────────
 function addItem(id, e) {
   e.stopPropagation();
   const item = MENU.find(i=>i.id===id);
-  if (!cart[id]) cart[id] = {...item, qty:0};
+  if (!cart[id]) cart[id]={...item,qty:0};
   cart[id].qty++;
-  const card = document.getElementById('card-'+id);
-  const badge = document.getElementById('qb-'+id);
+  const card=document.getElementById('card-'+id), badge=document.getElementById('qb-'+id);
   if(card) card.classList.add('in-cart');
-  if(badge) { badge.textContent=cart[id].qty; badge.style.display='flex'; }
+  if(badge){badge.textContent=cart[id].qty; badge.style.display='flex';}
   updateCart();
-  // Bounce animation
-  const btn = e.target;
-  btn.style.transform='scale(1.4)';
+  const btn=e.target; btn.style.transform='scale(1.4)';
   setTimeout(()=>btn.style.transform='',200);
 }
 
 function changeQty(id, d) {
-  if (!cart[id]) return;
-  cart[id].qty += d;
-  if (cart[id].qty <= 0) delete cart[id];
-  updateCart();
-  buildGrid(document.getElementById('searchInput').value);
+  if(!cart[id]) return;
+  cart[id].qty+=d;
+  if(cart[id].qty<=0) delete cart[id];
+  updateCart(); buildGrid(document.getElementById('searchInput').value);
 }
 
 function updateCart() {
-  const items = Object.values(cart);
-  const total = items.reduce((s,i)=>s+i.price*i.qty,0);
-  const count = items.reduce((s,i)=>s+i.qty,0);
-
-  // Badge
-  const badge = document.getElementById('cartBadge');
-  badge.textContent = count;
-  badge.style.display = count>0 ? 'flex' : 'none';
-  document.getElementById('totalAmount').textContent = fmt(total);
-  document.getElementById('orderBtn').disabled = count===0;
-
-  const wrap = document.getElementById('cartItems');
-  if (!items.length) {
-    wrap.innerHTML = `<div class="cart-empty">
-      <div class="cart-empty-icon">🛒</div>
-      <div class="cart-empty-text">GIỎ HÀNG<br>ĐANG TRỐNG</div>
-      <div class="cart-empty-sub">Chọn món ở menu để thêm vào giỏ</div>
-    </div>`;
+  const items=Object.values(cart);
+  const total=items.reduce((s,i)=>s+i.price*i.qty,0);
+  const count=items.reduce((s,i)=>s+i.qty,0);
+  const badge=document.getElementById('cpBadge');
+  badge.textContent=count; badge.style.display=count>0?'flex':'none';
+  document.getElementById('totalAmt').textContent=fmt(total);
+  document.getElementById('orderBtn').disabled=count===0;
+  const wrap=document.getElementById('cpItems');
+  if(!items.length){
+    wrap.innerHTML='<div class="cp-empty"><div class="cp-empty-icon">🛒</div><div class="cp-empty-text">GIỎ HÀNG<br>ĐANG TRỐNG</div><div class="cp-empty-sub">Chọn món để thêm vào giỏ</div></div>';
     return;
   }
-  wrap.innerHTML = items.map(item => `
-    <div class="cart-item">
-      <div class="ci-em">${item.emoji}</div>
-      <div class="ci-info">
-        <div class="ci-name">${item.name}</div>
-        <div class="ci-price">${fmt(item.price*item.qty)} VND</div>
+  wrap.innerHTML=items.map(item=>{
+    const imgEl = item.image
+      ? `<img src="${item.image}" alt="" onerror="this.style.display='none'">`
+      : item.emoji||'🍽';
+    return `<div class="cp-item">
+      <div class="cp-item-img">${imgEl}</div>
+      <div class="cp-info"><div class="cp-name">${item.name}</div><div class="cp-price">${fmt(item.price*item.qty)} VND</div></div>
+      <div class="cp-ctrl">
+        <button class="cp-btn" onclick="changeQty(${item.id},-1)">−</button>
+        <span class="cp-qty">${item.qty}</span>
+        <button class="cp-btn" onclick="changeQty(${item.id},1)">+</button>
       </div>
-      <div class="ci-controls">
-        <button class="ci-btn" onclick="changeQty(${item.id},-1)">−</button>
-        <span class="ci-qty">${item.qty}</span>
-        <button class="ci-btn" onclick="changeQty(${item.id},1)">+</button>
+    </div>`;
+  }).join('');
+}
+
+// ── Send Order ─────────────────────────────────────────────────────────────────
+function sendOrder() {
+  const items=Object.values(cart);
+  if(!items.length) return;
+  if(!ws||ws.readyState!==WebSocket.OPEN){alert('Mất kết nối!'); return;}
+  const order = {
+    machine:'Máy '+config.machineId,
+    items:items.map(i=>({name:i.name,emoji:i.emoji||'🍽',image:i.image||null,qty:i.qty,price:i.price})),
+    total:items.reduce((s,i)=>s+i.price*i.qty,0),
+    note:document.getElementById('orderNote').value
+  };
+  ws.send(JSON.stringify({type:'new_order',order}));
+  saveToHistory(order);
+  cart={};
+  document.getElementById('orderNote').value='';
+  updateCart(); buildGrid();
+  const t=document.getElementById('toast'); t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// ── Lịch sử đơn hàng ──────────────────────────────────────────────────────────
+function saveToHistory(order) {
+  const history = JSON.parse(localStorage.getItem('aknet_history')||'[]');
+  history.unshift({ ...order, time: new Date().toLocaleString('vi-VN') });
+  if(history.length>50) history.pop();
+  localStorage.setItem('aknet_history', JSON.stringify(history));
+}
+
+function loadHistory() {}
+
+function renderHistory() {
+  const list = document.getElementById('historyList');
+  const history = JSON.parse(localStorage.getItem('aknet_history')||'[]');
+  if(!history.length){
+    list.innerHTML='<div style="text-align:center;padding:60px;color:var(--gray);font-size:15px;letter-spacing:2px;font-weight:700;">CHƯA CÓ ĐƠN HÀNG NÀO</div>';
+    return;
+  }
+  list.innerHTML = history.map((o,i)=>`
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <span style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:var(--gold);">#${String(i+1).padStart(3,'0')}</span>
+        <span style="font-size:11px;color:var(--gray);">${o.time}</span>
       </div>
+      <div style="font-size:12px;color:var(--text);margin-bottom:6px;">${o.items.map(x=>`${x.emoji||'🍽'} ${x.name} ×${x.qty}`).join(' · ')}</div>
+      ${o.note?`<div style="font-size:11px;color:var(--gold);margin-bottom:4px;">📝 ${o.note}</div>`:''}
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold);">${fmt(o.total)} VND</div>
     </div>`).join('');
 }
 
-// ── Send Order ─────────────────────────────────────────────
-function sendOrder() {
-  const items = Object.values(cart);
-  if (!items.length) return;
-  if (!ws || ws.readyState !== WebSocket.OPEN) {
-    alert('Mất kết nối với máy tính tiền!');
+// ── Điểm danh ──────────────────────────────────────────────────────────────────
+function loadCheckinState() {
+  const data = JSON.parse(localStorage.getItem('aknet_checkin')||'{"lastDate":"","streak":0}');
+  document.getElementById('streakCount').textContent = data.streak;
+  const today = new Date().toLocaleDateString('vi-VN');
+  const el = document.getElementById('checkinStatus');
+  if(data.lastDate===today) {
+    el.innerHTML='<div style="color:#4ade80;font-size:14px;font-weight:800;margin-bottom:16px;">✅ Đã điểm danh hôm nay!</div>';
+  }
+}
+
+function doCheckin() {
+  const today = new Date().toLocaleDateString('vi-VN');
+  const data = JSON.parse(localStorage.getItem('aknet_checkin')||'{"lastDate":"","streak":0}');
+  if(data.lastDate===today){
+    document.getElementById('checkinStatus').innerHTML='<div style="color:var(--gold);font-size:13px;margin-bottom:14px;">Bạn đã điểm danh hôm nay rồi!</div>';
     return;
   }
-  ws.send(JSON.stringify({
-    type:'new_order',
-    order: {
-      machine: 'Máy ' + config.machineId,
-      items: items.map(i=>({name:i.name,emoji:i.emoji,qty:i.qty,price:i.price})),
-      total: items.reduce((s,i)=>s+i.price*i.qty,0),
-      note: document.getElementById('orderNote').value
-    }
-  }));
-  cart = {};
-  document.getElementById('orderNote').value = '';
-  updateCart();
-  buildGrid();
-  const t = document.getElementById('toast');
-  t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'), 3000);
+  const yesterday = new Date(); yesterday.setDate(yesterday.getDate()-1);
+  const wasYesterday = data.lastDate===yesterday.toLocaleDateString('vi-VN');
+  data.streak = wasYesterday ? data.streak+1 : 1;
+  data.lastDate = today;
+  localStorage.setItem('aknet_checkin', JSON.stringify(data));
+  document.getElementById('streakCount').textContent = data.streak;
+  document.getElementById('checkinStatus').innerHTML=`<div style="color:#4ade80;font-size:15px;font-weight:800;margin-bottom:16px;">🎉 Điểm danh thành công! Chuỗi ${data.streak} ngày!</div>`;
+}
+
+// ── Vòng quay may mắn ──────────────────────────────────────────────────────────
+const PRIZES = ['Uống miễn phí','Giảm 5K','Thêm 30 phút','May mắn lần sau','Snack miễn phí','Giảm 10K','Thêm 1 giờ','Tặng nước suối'];
+const COLORS = ['#f5a800','#e09000','#ff8800','#cc7000','#f5a800','#e09000','#ff8800','#cc7000'];
+let spinning=false, spinAngle=0, spinsToday=0;
+
+function initSpin() {
+  const today=new Date().toLocaleDateString('vi-VN');
+  const data=JSON.parse(localStorage.getItem('aknet_spin')||'{"date":"","count":0}');
+  if(data.date!==today){ spinsToday=0; localStorage.setItem('aknet_spin',JSON.stringify({date:today,count:0})); }
+  else spinsToday=data.count;
+  document.getElementById('spinLeft').textContent=Math.max(0,1-spinsToday);
+  setTimeout(drawWheel,100);
+}
+
+function drawWheel(angle=0) {
+  const canvas=document.getElementById('spinWheel');
+  if(!canvas) return;
+  const ctx=canvas.getContext('2d'), n=PRIZES.length, arc=Math.PI*2/n, r=145;
+  ctx.clearRect(0,0,300,300);
+  for(let i=0;i<n;i++){
+    ctx.beginPath(); ctx.moveTo(150,150);
+    ctx.arc(150,150,r,angle+arc*i,angle+arc*(i+1));
+    ctx.fillStyle=COLORS[i]; ctx.fill();
+    ctx.strokeStyle='#000'; ctx.lineWidth=2; ctx.stroke();
+    ctx.save(); ctx.translate(150,150);
+    ctx.rotate(angle+arc*i+arc/2);
+    ctx.textAlign='right'; ctx.fillStyle='#000';
+    ctx.font='bold 11px Nunito'; ctx.fillText(PRIZES[i],r-10,4);
+    ctx.restore();
+  }
+  // Center
+  ctx.beginPath(); ctx.arc(150,150,20,0,Math.PI*2);
+  ctx.fillStyle='#111'; ctx.fill();
+  ctx.strokeStyle=COLORS[0]; ctx.lineWidth=3; ctx.stroke();
+  // Pointer
+  ctx.beginPath(); ctx.moveTo(285,145); ctx.lineTo(300,150); ctx.lineTo(285,155);
+  ctx.fillStyle=COLORS[0]; ctx.fill();
+}
+
+function spinWheel() {
+  const today=new Date().toLocaleDateString('vi-VN');
+  const data=JSON.parse(localStorage.getItem('aknet_spin')||'{"date":"","count":0}');
+  if(data.count>=1&&data.date===today){ document.getElementById('spinResult').textContent='Hết lượt quay hôm nay!'; return; }
+  if(spinning) return;
+  spinning=true;
+  document.getElementById('spinBtn').disabled=true;
+  document.getElementById('spinResult').textContent='';
+  const extra=Math.PI*2*(5+Math.random()*5);
+  const target=Math.random()*Math.PI*2;
+  const total=spinAngle+extra+target;
+  const start=performance.now(), dur=4000;
+  function animate(now){
+    const p=Math.min((now-start)/dur,1);
+    const ease=1-Math.pow(1-p,4);
+    const cur=spinAngle+ease*(total-spinAngle);
+    drawWheel(cur);
+    if(p<1){ requestAnimationFrame(animate); return; }
+    spinAngle=total%(Math.PI*2);
+    const n=PRIZES.length, arc=Math.PI*2/n;
+    const normalised=((Math.PI*2-spinAngle)%(Math.PI*2));
+    const idx=Math.floor(normalised/arc)%n;
+    document.getElementById('spinResult').textContent='🎉 '+PRIZES[idx]+'!';
+    spinning=false;
+    document.getElementById('spinBtn').disabled=false;
+    spinsToday++;
+    const nd={date:today,count:spinsToday};
+    localStorage.setItem('aknet_spin',JSON.stringify(nd));
+    document.getElementById('spinLeft').textContent=Math.max(0,1-spinsToday);
+  }
+  requestAnimationFrame(animate);
+}
+
+// ── Gọi nhân viên ─────────────────────────────────────────────────────────────
+function callStaff() {
+  if(!ws||ws.readyState!==WebSocket.OPEN){alert('Mất kết nối!');return;}
+  ws.send(JSON.stringify({type:'call_staff',machine:'Máy '+config.machineId}));
+  const t=document.getElementById('toast');
+  t.textContent='🔔 ĐÃ GỌI NHÂN VIÊN!'; t.classList.add('show');
+  setTimeout(()=>{t.classList.remove('show'); t.textContent='✅ ORDER ĐÃ GỬI!';},3000);
+}
+
+// ── Default Menu (fallback) ────────────────────────────────────────────────────
+function getDefaultMenu(){
+  return [
+    {id:1,cat:'Best Seller',name:'Mì Nước',price:15000,oldPrice:20000,emoji:'🍜',desc:'Mì hảo hảo nóng hổi',best:true},
+    {id:2,cat:'Best Seller',name:'Xúc Xích Nướng',price:15000,emoji:'🌭',desc:'Xúc xích nướng thơm ngon'},
+    {id:3,cat:'Best Seller',name:'Gà Rán',price:25000,emoji:'🍗',desc:'Gà rán giòn hot nhất'},
+    {id:4,cat:'Đồ Ăn',name:'Khoai Tây Chiên',price:25000,emoji:'🍟',desc:'Chiên giòn'},
+    {id:5,cat:'Đồ Ăn',name:'Mì Trứng Nước',price:25000,oldPrice:30000,emoji:'🥚',desc:'Đặc biệt',best:true},
+    {id:6,cat:'Đồ Ăn',name:'Cơm Chiên Trứng',price:35000,oldPrice:40000,emoji:'🍚',desc:'Đậm đà'},
+    {id:7,cat:'Nước Uống',name:'Coca Cola',price:15000,emoji:'🥤',desc:'Lon 330ml'},
+    {id:8,cat:'Nước Uống',name:'Cà Phê Đen Đá',price:20000,emoji:'☕',desc:'Đậm đà'},
+    {id:9,cat:'Nước Uống',name:'Trà Đào',price:20000,emoji:'🍑',desc:'Đường phèn mát'},
+    {id:10,cat:'Nước Ép',name:'Nước Ép Cam',price:25000,emoji:'🍊',desc:'Tươi nguyên chất'},
+    {id:11,cat:'Giờ Chơi',name:'Nạp 1 Tiếng',price:10000,emoji:'⏱',desc:'Thêm 1 giờ'},
+    {id:12,cat:'Giờ Chơi',name:'Nạp 5 Tiếng',price:40000,emoji:'🕐',desc:'Siêu tiết kiệm'},
+  ];
 }
 
 init();

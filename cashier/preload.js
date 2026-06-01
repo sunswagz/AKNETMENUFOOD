@@ -10,8 +10,11 @@ contextBridge.exposeInMainWorld('aknet', {
   updateStatus: (id, status) => ipcRenderer.invoke('update-status', { id, status }),
   deleteOrder: (id) => ipcRenderer.invoke('delete-order', { id }),
   clearDone: () => ipcRenderer.invoke('clear-done'),
-
-  // Real-time events from server
   onNewOrder: (cb) => ipcRenderer.on('new-order', (_, order) => cb(order)),
   onBroadcast: (cb) => ipcRenderer.on('ws-broadcast', (_, msg) => cb(msg)),
+
+  // Menu management
+  getMenu: () => ipcRenderer.invoke('get-menu'),
+  saveMenu: (menu) => ipcRenderer.invoke('save-menu', menu),
+  broadcastMenu: (menu) => ipcRenderer.invoke('broadcast-menu', menu),
 });

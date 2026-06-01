@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage } = require('electron');
+const { app, BrowserWindow, ipcMain, Tray, Menu } = require('electron');
 const path = require('path');
 const http = require('http');
 const express = require('express');
@@ -6,53 +6,66 @@ const WebSocket = require('ws');
 const os = require('os');
 const fs = require('fs');
 
-// ─── Data Storage ───────────────────────────────────────────────────────────
+// ─── Data Storage ─────────────────────────────────────────────────────────────
 const DATA_FILE = path.join(app.getPath('userData'), 'orders.json');
+const CONFIG_FILE = path.join(app.getPath('userData'), 'server-config.json');
 let orders = [];
 
 function loadOrders() {
   try {
-    if (fs.existsSync(DATA_FILE)) {
+    if (fs.existsSync(DATA_FILE))
       orders = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
-    }
   } catch (e) { orders = []; }
 }
 
 function saveOrders() {
-  try {
-    fs.writeFileSync(DATA_FILE, JSON.stringify(orders), 'utf8');
-  } catch (e) {}
+  try { fs.writeFileSync(DATA_FILE, JSON.stringify(orders), 'utf8'); } catch (e) {}
 }
 
-// ─── Get Local IP ────────────────────────────────────────────────────────────
+// Lưu port đang dùng để máy trạm biết
+function saveServerConfig(port) {
+  try { fs.writeFileSync(CONFIG_FILE, JSON.stringify({ port }), 'utf8'); } catch (e) {}
+}
+
+// ─── Get Local IP ─────────────────────────────────────────────────────────────
 function getLocalIP() {
   const nets = os.networkInterfaces();
   for (const name of Object.keys(nets)) {
     for (const net of nets[name]) {
-      if (net.family === 'IPv4' && !net.internal) {
-        return net.address;
-      }
+      if (net.family === 'IPv4' && !net.internal) return net.address;
     }
   }
   return '127.0.0.1';
 }
 
-// ─── Express + WebSocket Server ──────────────────────────────────────────────
+// ─── Tìm cổng trống tự động ───────────────────────────────────────────────────
+function findFreePort(startPort) {
+  return new Promise((resolve, reject) => {
+    const net = require('net');
+    const tryPort = (port) => {
+      if (port > startPort + 20) {
+        reject(new Error('Khong tim duoc cong trong!'));
+        return;
+      }
+      const tester = net.createServer();
+      tester.once('error', () => tryPort(port + 1)); // cổng bị chiếm → thử cổng tiếp
+      tester.once('listening', () => {
+        tester.close(() => resolve(port)); // cổng trống → dùng cổng này
+      });
+      tester.listen(port, '0.0.0.0');
+    };
+    tryPort(startPort);
+  });
+}
+
+// ─── Express + WebSocket Server ───────────────────────────────────────────────
 const expressApp = express();
 expressApp.use(express.json());
 expressApp.use(express.static(path.join(__dirname, 'public')));
 
-// Serve menu data
-expressApp.get('/api/menu', (req, res) => {
-  res.json(getMenuData());
-});
+expressApp.get('/api/menu', (req, res) => res.json(getMenuData()));
+expressApp.get('/api/orders', (req, res) => res.json(orders));
 
-// Serve orders
-expressApp.get('/api/orders', (req, res) => {
-  res.json(orders);
-});
-
-// Update order status
 expressApp.post('/api/orders/:id/status', (req, res) => {
   const id = parseInt(req.params.id);
   const { status } = req.body;
@@ -67,7 +80,6 @@ expressApp.post('/api/orders/:id/status', (req, res) => {
   }
 });
 
-// Delete order
 expressApp.delete('/api/orders/:id', (req, res) => {
   const id = parseInt(req.params.id);
   orders = orders.filter(o => o.id !== id);
@@ -76,7 +88,6 @@ expressApp.delete('/api/orders/:id', (req, res) => {
   res.json({ ok: true });
 });
 
-// Clear done orders
 expressApp.delete('/api/orders/clear/done', (req, res) => {
   orders = orders.filter(o => o.status !== 'done');
   saveOrders();
@@ -85,20 +96,35 @@ expressApp.delete('/api/orders/clear/done', (req, res) => {
 });
 
 const server = http.createServer(expressApp);
-
-// WebSocket
 const wss = new WebSocket.Server({ server });
 const clients = new Set();
 
 wss.on('connection', (ws) => {
   clients.add(ws);
-  // Send current orders on connect
   ws.send(JSON.stringify({ type: 'init', orders }));
 
   ws.on('message', (data) => {
     try {
       const msg = JSON.parse(data);
-      if (msg.type === 'new_order') {
+      if (msg.type === 'call_staff') {
+        const callOrder = {
+          id: Date.now(),
+          machine: msg.machine,
+          type: 'call_staff',
+          status: 'pending',
+          items: [],
+          total: 0,
+          note: 'Khách gọi nhân viên',
+          time: new Date().toLocaleTimeString('vi-VN')
+        };
+        orders.push(callOrder);
+        saveOrders();
+        broadcast({ type: 'new_order', order: callOrder });
+        if (mainWindow) {
+          mainWindow.webContents.send('new-order', callOrder);
+          if (!mainWindow.isFocused()) { mainWindow.flashFrame(true); mainWindow.once('focus', () => mainWindow.flashFrame(false)); }
+        }
+      } else if (msg.type === 'new_order') {
         const order = {
           ...msg.order,
           id: Date.now(),
@@ -108,7 +134,6 @@ wss.on('connection', (ws) => {
         orders.push(order);
         saveOrders();
         broadcast({ type: 'new_order', order });
-        // Notify main window
         if (mainWindow) {
           mainWindow.webContents.send('new-order', order);
           if (!mainWindow.isFocused()) {
@@ -128,37 +153,48 @@ function broadcast(msg) {
   clients.forEach(ws => {
     if (ws.readyState === WebSocket.OPEN) ws.send(data);
   });
-  // Also update cashier window via IPC
-  if (mainWindow) {
-    mainWindow.webContents.send('ws-broadcast', msg);
-  }
+  if (mainWindow) mainWindow.webContents.send('ws-broadcast', msg);
 }
 
-const PORT = 3456;
 let mainWindow = null;
 let tray = null;
-let serverStarted = false;
+let ACTUAL_PORT = 3456;
 
-// ─── Start Server ────────────────────────────────────────────────────────────
-function startServer() {
+// ─── Start Server ─────────────────────────────────────────────────────────────
+async function startServer() {
+  // Thử cổng 3456 trước, nếu bị chiếm thì tự tìm cổng trống
+  try {
+    ACTUAL_PORT = await findFreePort(3456);
+  } catch (e) {
+    ACTUAL_PORT = 3456; // fallback
+  }
+
   return new Promise((resolve) => {
-    server.listen(PORT, '0.0.0.0', () => {
-      serverStarted = true;
+    server.listen(ACTUAL_PORT, '0.0.0.0', () => {
       const ip = getLocalIP();
-      console.log(`AKNet Server running at http://${ip}:${PORT}`);
-      resolve({ ip, port: PORT });
+      saveServerConfig(ACTUAL_PORT); // lưu port thực tế
+      console.log(`AKNet Server: http://${ip}:${ACTUAL_PORT}`);
+      resolve({ ip, port: ACTUAL_PORT });
+    });
+
+    server.on('error', (err) => {
+      // Nếu vẫn lỗi, thử cổng ngẫu nhiên
+      ACTUAL_PORT = Math.floor(Math.random() * 1000) + 3000;
+      server.listen(ACTUAL_PORT, '0.0.0.0', () => {
+        const ip = getLocalIP();
+        saveServerConfig(ACTUAL_PORT);
+        resolve({ ip, port: ACTUAL_PORT });
+      });
     });
   });
 }
 
-// ─── Electron Window ─────────────────────────────────────────────────────────
+// ─── Electron Window ──────────────────────────────────────────────────────────
 function createWindow(serverInfo) {
   mainWindow = new BrowserWindow({
-    width: 1280,
-    height: 800,
-    minWidth: 900,
-    minHeight: 600,
-    title: 'AKNet Cashier – Quản lý Order',
+    width: 1280, height: 800,
+    minWidth: 900, minHeight: 600,
+    title: 'AKNet Cashier',
     backgroundColor: '#020b08',
     webPreferences: {
       nodeIntegration: false,
@@ -169,67 +205,61 @@ function createWindow(serverInfo) {
   });
 
   mainWindow.loadFile(path.join(__dirname, 'public', 'cashier.html'));
-
-  // Pass server info to renderer
   mainWindow.webContents.on('did-finish-load', () => {
     mainWindow.webContents.send('server-info', serverInfo);
   });
 
-  mainWindow.on('close', (e) => {
-    e.preventDefault();
-    mainWindow.hide();
-  });
+  mainWindow.on('close', (e) => { e.preventDefault(); mainWindow.hide(); });
 
-  // Tray
+  // System tray
   try {
-    const iconPath = path.join(__dirname, 'assets', 'icon.ico');
-    tray = new Tray(iconPath);
+    tray = new Tray(path.join(__dirname, 'assets', 'icon.ico'));
     const menu = Menu.buildFromTemplate([
-      { label: 'Mở AKNet Cashier', click: () => mainWindow.show() },
+      { label: `AKNet Cashier - Cong ${serverInfo.port}`, enabled: false },
+      { label: `IP: ${serverInfo.ip}`, enabled: false },
       { type: 'separator' },
-      { label: 'Thoát', click: () => { app.quit(); } }
+      { label: 'Mo cua so', click: () => mainWindow.show() },
+      { type: 'separator' },
+      { label: 'Thoat', click: () => app.quit() }
     ]);
-    tray.setToolTip('AKNet Cashier');
+    tray.setToolTip(`AKNet Cashier - ${serverInfo.ip}:${serverInfo.port}`);
     tray.setContextMenu(menu);
     tray.on('click', () => mainWindow.show());
-  } catch(e) {}
+  } catch (e) {}
 }
 
-// IPC: cashier window → update status
-ipcMain.handle('update-status', (event, { id, status }) => {
+// ─── IPC ──────────────────────────────────────────────────────────────────────
+ipcMain.handle('update-status', (e, { id, status }) => {
   const order = orders.find(o => o.id === id);
-  if (order) {
-    order.status = status;
-    saveOrders();
-    broadcast({ type: 'status_update', id, status });
-    return true;
-  }
+  if (order) { order.status = status; saveOrders(); broadcast({ type: 'status_update', id, status }); return true; }
   return false;
 });
 
-ipcMain.handle('delete-order', (event, { id }) => {
+ipcMain.handle('delete-order', (e, { id }) => {
   orders = orders.filter(o => o.id !== id);
-  saveOrders();
-  broadcast({ type: 'order_deleted', id });
-  return true;
+  saveOrders(); broadcast({ type: 'order_deleted', id }); return true;
 });
 
 ipcMain.handle('clear-done', () => {
   orders = orders.filter(o => o.status !== 'done');
-  saveOrders();
-  broadcast({ type: 'refresh', orders });
-  return true;
+  saveOrders(); broadcast({ type: 'refresh', orders }); return true;
 });
 
 ipcMain.handle('get-orders', () => orders);
-
-ipcMain.handle('get-server-info', () => ({
-  ip: getLocalIP(),
-  port: PORT
-}));
+ipcMain.handle('get-server-info', () => ({ ip: getLocalIP(), port: ACTUAL_PORT }));
 
 // ─── App Lifecycle ────────────────────────────────────────────────────────────
 app.whenReady().then(async () => {
+  // Ngăn mở nhiều instance cùng lúc
+  const gotLock = app.requestSingleInstanceLock();
+  if (!gotLock) {
+    app.quit();
+    return;
+  }
+  app.on('second-instance', () => {
+    if (mainWindow) { mainWindow.show(); mainWindow.focus(); }
+  });
+
   loadOrders();
   const serverInfo = await startServer();
   createWindow(serverInfo);
@@ -246,22 +276,49 @@ app.on('window-all-closed', () => {
 // ─── Menu Data ────────────────────────────────────────────────────────────────
 function getMenuData() {
   return [
-    { id:1,  cat:'🥤 Đồ Uống',   name:'Trà Tắc',       price:15000, emoji:'🍋', desc:'Trà tắc mát lạnh, nhiều đá' },
-    { id:2,  cat:'🥤 Đồ Uống',   name:'Coca Cola',      price:15000, emoji:'🥤', desc:'Coca lon lạnh mát' },
-    { id:3,  cat:'🥤 Đồ Uống',   name:'Nước Suối',      price:10000, emoji:'💧', desc:'Aquafina 500ml' },
-    { id:4,  cat:'🥤 Đồ Uống',   name:'Trà Đào',        price:20000, emoji:'🍑', desc:'Trà đào đường phèn' },
-    { id:5,  cat:'🥤 Đồ Uống',   name:'Hồng Trà Sữa',   price:25000, emoji:'🧋', desc:'Trân châu, ít đá' },
-    { id:6,  cat:'🥤 Đồ Uống',   name:'Cà Phê Sữa',     price:20000, emoji:'☕', desc:'Cà phê sữa đá đậm đà' },
-    { id:7,  cat:'🍜 Ăn Vặt',    name:'Mì Ly',          price:12000, emoji:'🍜', desc:'Mì tôm hảo hảo ly' },
-    { id:8,  cat:'🍜 Ăn Vặt',    name:'Bánh Mì Thịt',   price:20000, emoji:'🥖', desc:'Bánh mì thịt nguội pate' },
-    { id:9,  cat:'🍜 Ăn Vặt',    name:'Xúc Xích',       price:15000, emoji:'🌭', desc:'Xúc xích chiên nóng x2' },
-    { id:10, cat:'🍜 Ăn Vặt',    name:'Snack O\'Star',  price:10000, emoji:'🍟', desc:'Snack khoai tây giòn' },
-    { id:11, cat:'🍜 Ăn Vặt',    name:'Khô Bò',         price:20000, emoji:'🥩', desc:'Khô bò cay, gói 30g' },
-    { id:12, cat:'⏱ Giờ Chơi',   name:'Nạp 1 Tiếng',   price:10000, emoji:'⏱', desc:'Nạp thêm 1 giờ chơi' },
-    { id:13, cat:'⏱ Giờ Chơi',   name:'Nạp 2 Tiếng',   price:18000, emoji:'⏰', desc:'Nạp 2 giờ, tiết kiệm' },
-    { id:14, cat:'⏱ Giờ Chơi',   name:'Nạp 5 Tiếng',   price:40000, emoji:'🕐', desc:'Gói 5 giờ siêu tiết kiệm' },
-    { id:15, cat:'🖨 Dịch Vụ',   name:'In Tài Liệu',    price:2000,  emoji:'🖨', desc:'In đen trắng /trang' },
-    { id:16, cat:'🖨 Dịch Vụ',   name:'Scan Giấy',      price:5000,  emoji:'📄', desc:'Scan A4/trang' },
-    { id:17, cat:'🖨 Dịch Vụ',   name:'Lưu File USB',   price:5000,  emoji:'💾', desc:'Copy file vào USB' },
+    { id:1,  cat:'Đồ Uống',  name:'Trà Tắc',        price:15000, emoji:'🍋', desc:'Mát lạnh nhiều đá' },
+    { id:2,  cat:'Đồ Uống',  name:'Coca Cola',       price:15000, emoji:'🥤', desc:'Coca lon lạnh' },
+    { id:3,  cat:'Đồ Uống',  name:'Nước Suối',       price:10000, emoji:'💧', desc:'Aquafina 500ml' },
+    { id:4,  cat:'Đồ Uống',  name:'Trà Đào',         price:20000, emoji:'🍑', desc:'Đường phèn mát' },
+    { id:5,  cat:'Đồ Uống',  name:'Hồng Trà Sữa',    price:25000, emoji:'🧋', desc:'Trân châu ít đá' },
+    { id:6,  cat:'Đồ Uống',  name:'Cà Phê Sữa',      price:20000, emoji:'☕', desc:'Đá đậm đà' },
+    { id:7,  cat:'Ăn Vặt',   name:'Mì Ly',           price:12000, emoji:'🍜', desc:'Hảo hảo ly' },
+    { id:8,  cat:'Ăn Vặt',   name:'Bánh Mì Thịt',    price:20000, emoji:'🥖', desc:'Thịt nguội pate' },
+    { id:9,  cat:'Ăn Vặt',   name:'Xúc Xích',        price:15000, emoji:'🌭', desc:'Chiên nóng x2' },
+    { id:10, cat:'Ăn Vặt',   name:'Snack O\'Star',   price:10000, emoji:'🍟', desc:'Khoai tây giòn' },
+    { id:11, cat:'Ăn Vặt',   name:'Khô Bò',          price:20000, emoji:'🥩', desc:'Cay, gói 30g' },
+    { id:12, cat:'Giờ Chơi', name:'Nạp 1 Tiếng',     price:10000, emoji:'⏱', desc:'Thêm 1 giờ' },
+    { id:13, cat:'Giờ Chơi', name:'Nạp 2 Tiếng',     price:18000, emoji:'⏰', desc:'Tiết kiệm hơn' },
+    { id:14, cat:'Giờ Chơi', name:'Nạp 5 Tiếng',     price:40000, emoji:'🕐', desc:'Siêu tiết kiệm' },
+    { id:15, cat:'Dịch Vụ',  name:'In Tài Liệu',     price:2000,  emoji:'🖨', desc:'Đen trắng /trang' },
+    { id:16, cat:'Dịch Vụ',  name:'Scan Giấy',       price:5000,  emoji:'📄', desc:'A4 /trang' },
+    { id:17, cat:'Dịch Vụ',  name:'Lưu File USB',    price:5000,  emoji:'💾', desc:'Copy vào USB' },
   ];
 }
+
+// ─── Menu Management ──────────────────────────────────────────────────────────
+const MENU_FILE = path.join(app.getPath('userData'), 'menu.json');
+
+function loadMenuFromFile() {
+  try {
+    if (fs.existsSync(MENU_FILE))
+      return JSON.parse(fs.readFileSync(MENU_FILE, 'utf8'));
+  } catch(e){}
+  return null;
+}
+
+ipcMain.handle('get-menu', () => {
+  return loadMenuFromFile();
+});
+
+ipcMain.handle('save-menu', (e, menu) => {
+  try { fs.writeFileSync(MENU_FILE, JSON.stringify(menu), 'utf8'); return true; } catch(e){ return false; }
+});
+
+ipcMain.handle('broadcast-menu', (e, menu) => {
+  broadcast({ type: 'menu_updated', menu });
+  return true;
+});
+
+// Gửi menu khi máy trạm kết nối (thêm vào ws connection handler)
+// Override ws init message để kèm menu
