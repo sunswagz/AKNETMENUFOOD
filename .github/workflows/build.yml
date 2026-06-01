@@ -1,0 +1,99 @@
+name: Build AKNet Installers
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: |
+            cashier/package.json
+            order-station/package.json
+
+      - name: Install Cashier dependencies
+        working-directory: cashier
+        run: npm install
+
+      - name: Build AKNet Cashier
+        working-directory: cashier
+        run: npm run build
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install Order Station dependencies
+        working-directory: order-station
+        run: npm install
+
+      - name: Build AKNet Order Station
+        working-directory: order-station
+        run: npm run build
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload AKNet Cashier installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: AKNet-Cashier-Setup
+          path: cashier/dist/*.exe
+          retention-days: 90
+
+      - name: Upload AKNet Order installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: AKNet-Order-Setup
+          path: order-station/dist/*.exe
+          retention-days: 90
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download Cashier artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: AKNet-Cashier-Setup
+          path: ./release
+
+      - name: Download Order artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: AKNet-Order-Setup
+          path: ./release
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: "AKNet Order System v1.0.${{ github.run_number }}"
+          body: |
+            ## AKNet Order System
+
+            | File | Cai len may |
+            |------|-------------|
+            | AKNet Cashier Setup.exe | May tinh tien |
+            | AKNet Order Setup.exe | Tung may tram |
+
+            Huong dan: Cai Cashier truoc, mo app ghi lai IP, roi cai Order tren may tram nhap IP vao.
+          files: ./release/*.exe
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
