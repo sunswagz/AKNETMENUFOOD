@@ -331,11 +331,14 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
   margin-right: 10px; -webkit-app-region: no-drag; flex-shrink: 0;
 }
 .tb-server-box {
-  background: rgba(245,166,35,.08); border: 1px solid rgba(245,166,35,.2);
-  border-radius: 6px; padding: 4px 10px;
+  background: rgba(245,166,35,.1);
+  border: 1.5px solid rgba(245,166,35,.4);
+  border-radius: 8px;
+  padding: 5px 14px;
+  box-shadow: 0 0 12px rgba(245,166,35,.1);
 }
-.tb-server-label { font-size: 7px; letter-spacing: 2px; color: rgba(245,166,35,.4); text-transform: uppercase; margin-bottom: 1px; }
-.tb-server-val { font-family: 'Bebas Neue', sans-serif; font-size: 13px; letter-spacing: 1.5px; color: #f5a623; }
+.tb-server-label { font-size: 8px; letter-spacing: 2.5px; color: rgba(245,166,35,.55); text-transform: uppercase; margin-bottom: 2px; }
+.tb-server-val { font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 2px; color: #ffc845; text-shadow: 0 0 10px rgba(245,166,35,.4); }
 .tb-live-pill {
   display: flex; align-items: center; gap: 5px;
   font-size: 10px; font-weight: 700; letter-spacing: 2px;
@@ -808,7 +811,6 @@ function saveItem(){
 // ══ IPC ═══════════════════════════════════════════════════
 if(window.aknet){
   window.aknet.onServerInfo(info=>{
-    document.getElementById('serverAddr').textContent=`${info.ip}:${info.port}`;
     const tbAddr=document.getElementById('tbServerAddr');if(tbAddr)tbAddr.textContent=`${info.ip}:${info.port}`;
   });
   window.aknet.onNewOrder(order=>{
@@ -838,7 +840,6 @@ if(window.aknet){
 (async()=>{
   if(window.aknet){
     const info=await window.aknet.getServerInfo();
-    document.getElementById('serverAddr').textContent=`${info.ip}:${info.port}`;
     const tbAddr=document.getElementById('tbServerAddr');if(tbAddr)tbAddr.textContent=`${info.ip}:${info.port}`;
     orders=await window.aknet.getOrders();
     loadMenu();

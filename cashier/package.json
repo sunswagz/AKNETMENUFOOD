@@ -22,11 +22,13 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "AKNet Cashier",
-      "include": "installer.nsh"
+      "shortcutName": "AKNet Cashier"
     },
     "files": ["**/*", "!node_modules/.cache/**"],
-    "publish": null
+    "publish": null,
+    "electronDownload": {
+      "mirror": "https://npmmirror.com/mirrors/electron/"
+    }
   },
   "dependencies": {
     "express": "^4.18.2",
