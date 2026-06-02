@@ -1184,25 +1184,21 @@ async function doConnect(){
   config={serverIP:ip,serverPort:parseInt(port),machineId:machine};
   try{
     await connectWS(ip,port);
-    // Lưu config - wrap riêng để không block việc ẩn setup
-    try{ if(window.aknet) await window.aknet.saveConfig(config); }catch(e){}
-    // Update UI
-    const md=document.getElementById('machineDisplay');
-    if(md) md.textContent='MÁY '+machine;
-    const tbBadge=document.getElementById('tbMachineBadge');
-    if(tbBadge){tbBadge.textContent='MÁY '+machine;tbBadge.style.display='block';}
-    const tbName=document.getElementById('tbMachineName');
-    if(tbName) tbName.textContent='MÁY '+machine+' – GỌI MÓN';
-    // Ẩn setup screen
-    const setupEl=document.getElementById('setup');
-    if(setupEl) setupEl.classList.remove('show');
-    // Build menu và start slider
-    buildSidebar(); buildCatBar(); buildSections(); updateCart();
-    startSlider();
   }catch(e){
-    console.error('Connect error:',e);
     setSS('❌ Không kết nối được! Kiểm tra lại IP.','ss-err');
+    return;
   }
+  // Kết nối thành công - ẩn setup NGAY LẬP TỨC
+  document.getElementById('setup').classList.remove('show');
+  // Cập nhật UI
+  try{document.getElementById('machineDisplay').textContent='MÁY '+machine;}catch(e){}
+  try{const b=document.getElementById('tbMachineBadge');if(b){b.textContent='MÁY '+machine;b.style.display='block';}}catch(e){}
+  try{const n=document.getElementById('tbMachineName');if(n)n.textContent='MÁY '+machine+' – GỌI MÓN';}catch(e){}
+  // Build menu
+  buildSidebar();buildCatBar();buildSections();updateCart();
+  startSlider();
+  // Lưu config KHÔNG ĐỒNG BỘ - không block gì cả
+  if(window.aknet){window.aknet.saveConfig(config).catch(()=>{});}
 }
 function setSS(msg,cls){const el=document.getElementById('setupStatus');el.textContent=msg;el.className='setup-status '+cls;}
 function showSetup(){document.getElementById('setup').classList.add('show');clearInterval(slideTimer);}
