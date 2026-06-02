@@ -1182,23 +1182,23 @@ async function doConnect(){
   if(!ip){setSS('Vui lòng nhập địa chỉ IP!','ss-err');return;}
   setSS('Đang kết nối...','ss-wait');
   config={serverIP:ip,serverPort:parseInt(port),machineId:machine};
-  try{
-    await connectWS(ip,port);
-  }catch(e){
+  // Ẩn setup TRƯỚC - dùng style trực tiếp, không phụ thuộc class
+  const setupEl=document.getElementById('setup');
+  // Kết nối
+  connectWS(ip,port).then(()=>{
+    // Ẩn setup bằng FORCE style
+    if(setupEl){setupEl.style.display='none';setupEl.classList.remove('show');}
+    // Cập nhật UI
+    try{document.getElementById('machineDisplay').textContent='MÁY '+machine;}catch(e){}
+    try{const b=document.getElementById('tbMachineBadge');if(b){b.textContent='MÁY '+machine;b.style.display='block';}}catch(e){}
+    try{const n=document.getElementById('tbMachineName');if(n)n.textContent='MÁY '+machine+' – GỌI MÓN';}catch(e){}
+    // Build menu
+    try{buildSidebar();buildCatBar();buildSections();updateCart();startSlider();}catch(e){}
+    // Lưu config ngầm
+    try{if(window.aknet)window.aknet.saveConfig(config);}catch(e){}
+  }).catch(()=>{
     setSS('❌ Không kết nối được! Kiểm tra lại IP.','ss-err');
-    return;
-  }
-  // Kết nối thành công - ẩn setup NGAY LẬP TỨC
-  document.getElementById('setup').classList.remove('show');
-  // Cập nhật UI
-  try{document.getElementById('machineDisplay').textContent='MÁY '+machine;}catch(e){}
-  try{const b=document.getElementById('tbMachineBadge');if(b){b.textContent='MÁY '+machine;b.style.display='block';}}catch(e){}
-  try{const n=document.getElementById('tbMachineName');if(n)n.textContent='MÁY '+machine+' – GỌI MÓN';}catch(e){}
-  // Build menu
-  buildSidebar();buildCatBar();buildSections();updateCart();
-  startSlider();
-  // Lưu config KHÔNG ĐỒNG BỘ - không block gì cả
-  if(window.aknet){window.aknet.saveConfig(config).catch(()=>{});}
+  });
 }
 function setSS(msg,cls){const el=document.getElementById('setupStatus');el.textContent=msg;el.className='setup-status '+cls;}
 function showSetup(){document.getElementById('setup').classList.add('show');clearInterval(slideTimer);}
