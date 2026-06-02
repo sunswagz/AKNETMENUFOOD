@@ -56,6 +56,8 @@ function createWindow() {
   });
 
   mainWindow.loadFile(path.join(__dirname, 'public', 'order.html'));
+  // Mở DevTools để debug - XÓA SAU KHI FIX XONG
+  mainWindow.webContents.openDevTools();
 
   // Tắt menu bar hoàn toàn (File/Edit/View/Window/Help)
   mainWindow.setMenuBarVisibility(false);
