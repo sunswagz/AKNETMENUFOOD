@@ -22,10 +22,17 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "AKNet Order"
+      "shortcutName": "AKNet Goi Mon"
     },
     "files": ["**/*", "!node_modules/.cache/**"],
-    "publish": null
+    "publish": {
+      "provider": "github",
+      "owner": "sunswagz",
+      "repo": "AKNETMENUFOOD"
+    }
+  },
+  "dependencies": {
+    "electron-updater": "^6.1.7"
   },
   "devDependencies": {
     "electron": "^27.3.0",
