@@ -1114,7 +1114,6 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')hideExitModal();});
 // ══════════════════════════════════════════════════════════
 //  WEBSOCKET
 // ══════════════════════════════════════════════════════════
-// connectWS merged into doConnect
 function tryReconnect(ip,port){
   try{
     ws=new WebSocket(`ws://${ip}:${port}`);
@@ -1156,60 +1155,45 @@ function applySettings(s){
 // ══════════════════════════════════════════════════════════
 //  SETUP & INIT
 // ══════════════════════════════════════════════════════════
-function doConnect(){
+async function doConnect(){
   const ip=document.getElementById('cfgIP').value.trim();
   const port=document.getElementById('cfgPort').value||3456;
   const machine=document.getElementById('cfgMachine').value||'01';
   if(!ip){setSS('Vui lòng nhập địa chỉ IP!','ss-err');return;}
   setSS('Đang kết nối...','ss-wait');
   config={serverIP:ip,serverPort:parseInt(port),machineId:machine};
-
-  // Đóng ws cũ nếu có
-  try{if(ws)ws.close();}catch(e){}
-
-  ws=new WebSocket('ws://'+ip+':'+port);
-
-  const timeout=setTimeout(function(){
-    ws.close();
-    setSS('❌ Timeout! Kiểm tra lại IP và Cashier.','ss-err');
-  },10000);
-
-  ws.onopen=function(){
-    clearTimeout(timeout);
-    setConn(true);
-    // Lưu config
-    try{if(window.aknet)window.aknet.saveConfig(config);}catch(e){}
-    // Ẩn setup - FORCE
-    const s=document.getElementById('setup');
-    if(s){s.style.cssText='display:none!important';}
-    // Update máy
-    try{document.getElementById('machineDisplay').textContent='MÁY '+machine;}catch(e){}
+  try{
+    await connectWS(ip,port);
+    if(window.aknet) await window.aknet.saveConfig(config);
+    document.getElementById('machineDisplay').textContent='MÁY '+machine;
+    // Thêm update titlebar
     try{const b=document.getElementById('tbMachineBadge');if(b){b.textContent='MÁY '+machine;b.style.display='block';}}catch(e){}
     try{const n=document.getElementById('tbMachineName');if(n)n.textContent='MÁY '+machine+' – GỌI MÓN';}catch(e){}
-    // Build UI
-    try{buildSidebar();buildCatBar();buildSections();updateCart();startSlider();}catch(e){console.error('UI build error:',e);}
-  };
+    document.getElementById('setup').classList.remove('show');
+    buildSidebar();buildCatBar();buildSections();updateCart();
+    startSlider();
+  }catch(e){setSS('❌ Không kết nối được! Kiểm tra lại IP.','ss-err');}
+}
 
-  ws.onerror=function(){
-    clearTimeout(timeout);
-    setSS('❌ Không kết nối được! Kiểm tra lại IP.','ss-err');
-    setConn(false);
-  };
-
-  ws.onclose=function(){
-    setConn(false);
-    setTimeout(function(){tryReconnect(ip,port);},4000);
-  };
-
-  ws.onmessage=function(e){
-    try{
-      const msg=JSON.parse(e.data);
-      if(msg.type==='menu_updated'&&Array.isArray(msg.menu)){
-        MENU=msg.menu;buildSidebar();buildCatBar();buildSections();
-      }
-      if(msg.type==='settings'&&msg.data){applySettings(msg.data);}
-    }catch(err){}
-  };
+function connectWS(ip,port){
+  return new Promise((resolve,reject)=>{
+    ws=new WebSocket(`ws://${ip}:${port}`);
+    const t=setTimeout(()=>{ws.close();reject();},5000);
+    ws.onopen=()=>{clearTimeout(t);setConn(true);resolve();};
+    ws.onerror=()=>{clearTimeout(t);reject();};
+    ws.onclose=()=>{setConn(false);setTimeout(()=>tryReconnect(ip,port),4000);};
+    ws.onmessage=e=>{
+      try{
+        const msg=JSON.parse(e.data);
+        if(msg.type==='menu_updated'&&Array.isArray(msg.menu)){
+          MENU=msg.menu; buildSidebar();buildCatBar();buildSections();
+        }
+        if(msg.type==='settings'&&msg.data){
+          applySettings(msg.data);
+        }
+      }catch(err){}
+    };
+  });
 }
 function setSS(msg,cls){const el=document.getElementById('setupStatus');el.textContent=msg;el.className='setup-status '+cls;}
 function showSetup(){document.getElementById('setup').classList.add('show');clearInterval(slideTimer);}
@@ -1224,11 +1208,16 @@ async function init(){
       document.getElementById('cfgPort').value=cfg.serverPort||3456;
       document.getElementById('cfgMachine').value=cfg.machineId||'01';
       config=cfg;
-      // Auto connect - điền IP vào form rồi gọi doConnect
-      document.getElementById('cfgIP').value=cfg.serverIP;
-      document.getElementById('cfgPort').value=cfg.serverPort||3456;
-      document.getElementById('cfgMachine').value=cfg.machineId||'01';
-      doConnect();
+      try{
+        await connectWS(cfg.serverIP,cfg.serverPort||3456);
+        if(window.aknet) window.aknet.saveConfig(cfg).catch(()=>{});
+        document.getElementById('machineDisplay').textContent='MÁY '+(cfg.machineId||'01');
+        try{const b=document.getElementById('tbMachineBadge');if(b){b.textContent='MÁY '+(cfg.machineId||'01');b.style.display='block';}}catch(e){}
+        try{const n=document.getElementById('tbMachineName');if(n)n.textContent='MÁY '+(cfg.machineId||'01')+' – GỌI MÓN';}catch(e){}
+        document.getElementById('setup').classList.remove('show');
+        buildSidebar();buildCatBar();buildSections();updateCart();
+        startSlider();
+      }catch(e){}
     }
   }
 }
