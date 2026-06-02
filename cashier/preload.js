@@ -17,4 +17,9 @@ contextBridge.exposeInMainWorld('aknet', {
   getMenu: () => ipcRenderer.invoke('get-menu'),
   saveMenu: (menu) => ipcRenderer.invoke('save-menu', menu),
   broadcastMenu: (menu) => ipcRenderer.invoke('broadcast-menu', menu),
+
+  // Window controls cho custom title bar
+  minimize: () => ipcRenderer.send('cashier-minimize'),
+  maximize: () => ipcRenderer.send('cashier-maximize'),
+  close: () => ipcRenderer.send('cashier-close'),
 });
