@@ -63,6 +63,14 @@ const expressApp = express();
 expressApp.use(express.json());
 expressApp.use(express.static(path.join(__dirname, 'public')));
 
+// Phục vụ giao diện order cho máy trạm dùng browser
+expressApp.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'order.html'));
+});
+expressApp.get('/order', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'order.html'));
+});
+
 expressApp.get('/api/menu', (req, res) => res.json(getMenuData()));
 expressApp.get('/api/orders', (req, res) => res.json(orders));
 
