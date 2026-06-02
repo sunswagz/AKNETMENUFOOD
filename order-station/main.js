@@ -19,20 +19,16 @@ function saveConfig(cfg) {
 let config = loadConfig();
 let mainWindow;
 
-// ─── Auto Updater ────────────────────────────────────────────────────────────
 function setupAutoUpdater() {
   autoUpdater.logger = null;
   autoUpdater.autoDownload = true;
   autoUpdater.autoInstallOnAppQuit = true;
-  autoUpdater.on('update-downloaded', () => {
-    autoUpdater.quitAndInstall(true, true);
-  });
+  autoUpdater.on('update-downloaded', () => autoUpdater.quitAndInstall(true, true));
   autoUpdater.on('error', () => {});
   autoUpdater.checkForUpdates().catch(() => {});
   setInterval(() => autoUpdater.checkForUpdates().catch(() => {}), 30 * 60 * 1000);
 }
 
-// ─── Window ───────────────────────────────────────────────────────────────────
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1280,
@@ -41,29 +37,24 @@ function createWindow() {
     minHeight: 700,
     title: 'AKNet – Gọi Món',
     backgroundColor: '#0d0d0d',
-
-    // ── Xóa title bar Windows, dùng custom title bar trong HTML ──
-    frame: false,           // Tắt hoàn toàn khung Windows
-    titleBarStyle: 'hidden', // Ẩn title bar native
-
+    // KHÔNG dùng frame:false - giữ frame Windows bình thường
+    // Chỉ ẩn menu bar thôi
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      webSecurity: false,
+      // KHÔNG dùng webSecurity:false
       preload: path.join(__dirname, 'preload.js')
     },
     icon: path.join(__dirname, 'assets', 'icon.ico')
   });
 
-  mainWindow.loadFile(path.join(__dirname, 'public', 'order.html'));
-
-
-  // Tắt menu bar hoàn toàn (File/Edit/View/Window/Help)
+  // Ẩn menu bar (File/Edit/View...) nhưng GIỮ frame Windows
   mainWindow.setMenuBarVisibility(false);
   mainWindow.removeMenu();
+
+  mainWindow.loadFile(path.join(__dirname, 'public', 'order.html'));
 }
 
-// ─── IPC ──────────────────────────────────────────────────────────────────────
 ipcMain.handle('get-config', () => config);
 ipcMain.handle('save-config', (e, cfg) => {
   config = { ...config, ...cfg };
@@ -72,15 +63,6 @@ ipcMain.handle('save-config', (e, cfg) => {
 });
 ipcMain.handle('get-version', () => app.getVersion());
 
-// Window controls từ custom title bar
-ipcMain.on('window-minimize', () => mainWindow?.minimize());
-ipcMain.on('window-maximize', () => {
-  if (mainWindow?.isMaximized()) mainWindow.unmaximize();
-  else mainWindow?.maximize();
-});
-ipcMain.on('window-close', () => mainWindow?.close());
-
-// ─── App Lifecycle ────────────────────────────────────────────────────────────
 app.whenReady().then(() => {
   const gotLock = app.requestSingleInstanceLock();
   if (!gotLock) { app.quit(); return; }
