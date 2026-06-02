@@ -257,16 +257,9 @@ ipcMain.handle('clear-done', () => {
 
 ipcMain.handle('get-orders', () => orders);
 ipcMain.handle('get-server-info', () => ({ ip: getLocalIP(), port: ACTUAL_PORT }));
-
-// Window controls từ custom title bar
-// window controls registered above
 ipcMain.on('cashier-minimize', () => mainWindow?.minimize());
-ipcMain.on('cashier-maximize', () => {
-  if (mainWindow?.isMaximized()) mainWindow.unmaximize();
-  else mainWindow?.maximize();
-});
+ipcMain.on('cashier-maximize', () => { if(mainWindow?.isMaximized()) mainWindow.unmaximize(); else mainWindow?.maximize(); });
 ipcMain.on('cashier-close', () => mainWindow?.hide());
-
 
 // ─── App Lifecycle ────────────────────────────────────────────────────────────
 app.whenReady().then(async () => {
