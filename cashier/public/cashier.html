@@ -836,7 +836,21 @@ body{display:flex;flex-direction:column;height:100vh;overflow:hidden;}
     </div>
 
 
-    <!-- QR THANH TOÁN -->
+    
+    <!-- BANNER CỐ ĐỊNH -->
+    <div class="sg-section">
+      <div class="sg-title">🖼 BANNER CỐ ĐỊNH</div>
+      <div class="sg-item">
+        <div class="sg-item-label">Ảnh Banner (trên tab danh mục)</div>
+        <div class="sg-item-hint">Tỉ lệ 8:1 · VD: 1600×200px · JPG/PNG</div>
+        <div class="sg-upload" id="menuBannerUpload" onclick="triggerUpload('menuBannerFile')">
+          <img id="menuBannerPreview" src="" style="display:none;width:100%;height:70px;object-fit:cover;border-radius:8px"/>
+          <div id="menuBannerHint"><div class="su-icon">🖼</div><div class="su-text">Click để upload banner cố định</div></div>
+          <input type="file" id="menuBannerFile" accept="image/*" onchange="handleUpload(event,'menuBanner')"/>
+        </div>
+      </div>
+    </div>
+<!-- QR THANH TOÁN -->
     <div class="sg-section">
       <div class="sg-title">📱 PHƯƠNG THỨC THANH TOÁN QR</div>
       <div class="sg-item">
@@ -1224,9 +1238,11 @@ Bạn có chắc không?`)) return;
 function saveCategories() {
   if(window.aknet) {
     window.aknet.saveCategories(appCategories).catch(()=>{});
-    // Broadcast categories đến máy trạm
     window.aknet.broadcastCategories(appCategories).catch(()=>{});
   }
+  // Hiện thông báo
+  const st = document.getElementById('sgStatus');
+  if(st){ st.textContent='✅ Đã lưu danh mục!'; st.style.color='var(--green)'; setTimeout(()=>st.textContent='',3000); }
 }
 
 function updateFeePreview() {
@@ -1502,6 +1518,24 @@ function handleUpload(e, type){
       document.getElementById('promoPreview').style.display='block';
       document.getElementById('promoHint').style.display='none';
       document.getElementById('promoUpload').classList.add('has-img');
+    } else if(type==='menuBanner'){
+      settings.menuBanner = data;
+      document.getElementById('menuBannerPreview').src=data;
+      document.getElementById('menuBannerPreview').style.display='block';
+      document.getElementById('menuBannerHint').style.display='none';
+      document.getElementById('menuBannerUpload').classList.add('has-img');
+    } else if(type==='menuBanner'){
+      settings.menuBanner = data;
+      document.getElementById('menuBannerPreview').src=data;
+      document.getElementById('menuBannerPreview').style.display='block';
+      document.getElementById('menuBannerHint').style.display='none';
+      document.getElementById('menuBannerUpload').classList.add('has-img');
+    } else if(type==='menuBanner'){
+      settings.menuBanner = data;
+      const prev=document.getElementById('menuBannerPreview');
+      const hint=document.getElementById('menuBannerHint');
+      if(prev){prev.src=data;prev.style.display='block';}
+      if(hint) hint.style.display='none';
     } else if(type==='sidebarPromo'){
       settings.sidebarPromo = data;
       document.getElementById('sidebarPromoPreview').src=data;
@@ -1549,6 +1583,9 @@ function removeSlide(i){
 async function saveAndBroadcast(){
   settings.slogan = document.getElementById('sloganInput').value;
   settings.qrMethods = qrMethods;
+  // Gửi kèm menuBanner nếu có
+  const mbImg = document.getElementById('menuBannerImg');
+  if(mbImg && mbImg.src && mbImg.src.startsWith('data:')) settings.menuBanner = mbImg.src;
   const status = document.getElementById('sgStatus');
   status.textContent = 'Đang lưu...';
   status.style.color = 'var(--text2)';
@@ -1583,6 +1620,22 @@ async function loadSettings(){
           document.getElementById('logoUpload').classList.add('has-img');
         }
         if(s.slides && s.slides.length) renderSliderPreview();
+        if(s.menuBanner){
+          const p=document.getElementById('menuBannerPreview');
+          if(p){p.src=s.menuBanner;p.style.display='block';}
+          const h=document.getElementById('menuBannerHint');
+          if(h) h.style.display='none';
+        }
+        if(s.menuBanner){
+          document.getElementById('menuBannerPreview').src=s.menuBanner;
+          document.getElementById('menuBannerPreview').style.display='block';
+          document.getElementById('menuBannerHint').style.display='none';
+        }
+        if(s.menuBanner){
+          document.getElementById('menuBannerPreview').src=s.menuBanner;
+          document.getElementById('menuBannerPreview').style.display='block';
+          document.getElementById('menuBannerHint').style.display='none';
+        }
         if(s.promo){
           document.getElementById('promoPreview').src=s.promo;
           document.getElementById('promoPreview').style.display='block';
