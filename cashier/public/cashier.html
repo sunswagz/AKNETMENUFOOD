@@ -368,6 +368,214 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);fon
 
 /* Layout fix */
 body{display:flex;flex-direction:column;height:100vh;overflow:hidden;}
+
+
+/* ══ QUẢN LÝ DANH MỤC & PHÍ ══ */
+.cat-section { margin-bottom: 28px; }
+.cat-list { display: flex; flex-direction: column; gap: 8px; }
+.cat-item {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--card); border: 1px solid var(--border2);
+  border-radius: 10px; padding: 10px 14px;
+  transition: all .18s;
+}
+.cat-item:hover { border-color: rgba(245,166,35,.3); }
+.cat-item-drag { color: rgba(255,255,255,.2); cursor: grab; font-size: 16px; flex-shrink: 0; }
+.cat-item-icon { font-size: 20px; flex-shrink: 0; }
+.cat-item-name-wrap { flex: 1; min-width: 0; }
+.cat-item-name {
+  background: transparent; border: none; color: #fff;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px; font-weight: 700; letter-spacing: 1px;
+  text-transform: uppercase; width: 100%; outline: none;
+  padding: 2px 6px; border-radius: 5px;
+  transition: background .2s;
+}
+.cat-item-name:focus { background: rgba(245,166,35,.08); }
+.cat-item-count { font-family: 'Bebas Neue', sans-serif; font-size: 14px; color: rgba(255,255,255,.25); padding: 0 8px; }
+.cat-item-del {
+  background: rgba(230,48,48,.08); border: 1px solid rgba(230,48,48,.2);
+  color: var(--red); border-radius: 7px; width: 28px; height: 28px;
+  cursor: pointer; font-size: 13px; display: flex; align-items: center;
+  justify-content: center; transition: all .2s; flex-shrink: 0;
+}
+.cat-item-del:hover { background: rgba(230,48,48,.2); }
+.cat-add-row {
+  display: flex; gap: 8px; margin-top: 10px;
+}
+.cat-add-input {
+  flex: 1; background: rgba(255,255,255,.04);
+  border: 1.5px solid rgba(255,255,255,.08); border-radius: 9px;
+  color: #fff; padding: 9px 13px;
+  font-family: 'Barlow', sans-serif; font-size: 13px; outline: none;
+  transition: border-color .2s;
+}
+.cat-add-input:focus { border-color: rgba(245,166,35,.4); }
+.cat-icon-input {
+  width: 60px; background: rgba(255,255,255,.04);
+  border: 1.5px solid rgba(255,255,255,.08); border-radius: 9px;
+  color: #fff; padding: 9px 8px; font-size: 18px;
+  text-align: center; outline: none;
+  transition: border-color .2s;
+}
+.cat-add-btn {
+  background: var(--orange); border: none; border-radius: 9px;
+  padding: 9px 16px; color: #000;
+  font-family: 'Bebas Neue', sans-serif; font-size: 15px; letter-spacing: 2px;
+  cursor: pointer; transition: all .2s; white-space: nowrap;
+}
+.cat-add-btn:hover { transform: translateY(-1px); }
+
+/* Phí dịch vụ */
+.fee-row {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--card); border: 1px solid var(--border2);
+  border-radius: 10px; padding: 12px 16px;
+}
+.fee-toggle { position: relative; flex-shrink: 0; }
+.fee-toggle input[type=checkbox] { display: none; }
+.fee-toggle label {
+  display: block; width: 44px; height: 24px;
+  background: rgba(255,255,255,.1); border-radius: 12px;
+  cursor: pointer; transition: background .2s; position: relative;
+}
+.fee-toggle label::after {
+  content: ''; position: absolute; top: 3px; left: 3px;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: #fff; transition: left .2s;
+}
+.fee-toggle input:checked + label { background: var(--green); }
+.fee-toggle input:checked + label::after { left: 23px; }
+.fee-label { font-size: 13px; font-weight: 700; color: var(--text); flex: 1; }
+.fee-input-wrap { display: flex; align-items: center; gap: 6px; }
+.fee-amount {
+  width: 100px; background: rgba(255,255,255,.04);
+  border: 1.5px solid rgba(255,255,255,.08); border-radius: 8px;
+  color: var(--orange); padding: 7px 10px;
+  font-family: 'Bebas Neue', sans-serif; font-size: 16px; letter-spacing: 1px;
+  text-align: right; outline: none; transition: border-color .2s;
+}
+.fee-amount:focus { border-color: rgba(245,166,35,.4); }
+.fee-unit { font-size: 12px; color: rgba(255,255,255,.3); }
+
+/* ══ SETTINGS TAB ══ */
+.settings-tab{display:none;flex-direction:column;flex:1;overflow:hidden;}
+.settings-tab.show{display:flex;}
+.settings-scroll{flex:1;overflow-y:auto;padding:20px 24px;}
+.settings-scroll::-webkit-scrollbar{width:4px;}
+.settings-scroll::-webkit-scrollbar-thumb{background:rgba(245,166,35,.2);border-radius:4px;}
+
+.sg-section{margin-bottom:28px;}
+.sg-title{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;color:var(--orange);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.sg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;}
+
+.sg-item{background:var(--card);border:1px solid var(--border2);border-radius:12px;padding:14px;transition:border-color .2s;}
+.sg-item:hover{border-color:rgba(245,166,35,.3);}
+.sg-item-label{font-size:10px;font-weight:700;letter-spacing:2px;color:rgba(245,166,35,.6);text-transform:uppercase;margin-bottom:8px;}
+.sg-item-hint{font-size:10px;color:var(--text2);margin-bottom:10px;line-height:1.4;}
+
+/* Upload area */
+.sg-upload{border:2px dashed rgba(245,166,35,.2);border-radius:10px;min-height:100px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;background:rgba(245,166,35,.03);}
+.sg-upload:hover{border-color:rgba(245,166,35,.5);background:rgba(245,166,35,.07);}
+.sg-upload.has-img{min-height:120px;padding:0;border-style:solid;border-color:rgba(245,166,35,.4);}
+.sg-upload img{width:100%;height:120px;object-fit:contain;border-radius:8px;}
+.sg-upload .su-icon{font-size:24px;}
+.sg-upload .su-text{font-size:11px;color:var(--text2);text-align:center;padding:0 10px;}
+.sg-upload input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;}
+.sg-upload .su-change{position:absolute;bottom:6px;right:6px;background:rgba(0,0,0,.7);color:var(--orange);font-size:10px;padding:3px 8px;border-radius:5px;font-weight:700;}
+
+/* Text input */
+.sg-input{width:100%;background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.08);border-radius:8px;color:#fff;padding:9px 12px;font-family:'Barlow',sans-serif;font-size:13px;outline:none;transition:border-color .2s;}
+.sg-input:focus{border-color:rgba(245,166,35,.4);}
+
+/* Save button */
+.sg-save-btn{background:linear-gradient(135deg,var(--orange),#d48800);border:none;border-radius:10px;padding:11px 24px;color:#000;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;cursor:pointer;transition:all .2s;box-shadow:0 4px 14px rgba(245,166,35,.3);}
+.sg-save-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(245,166,35,.4);}
+
+/* Slider previews */
+.slider-preview{display:flex;gap:8px;flex-wrap:wrap;}
+.sp-item{position:relative;width:120px;}
+.sp-item img{width:120px;height:70px;object-fit:cover;border-radius:8px;border:1px solid rgba(255,255,255,.1);}
+.sp-del{position:absolute;top:4px;right:4px;background:rgba(230,48,48,.8);border:none;color:#fff;width:20px;height:20px;border-radius:50%;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.sp-add{width:120px;height:70px;border:2px dashed rgba(245,166,35,.3);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-direction:column;cursor:pointer;background:rgba(245,166,35,.03);transition:all .2s;position:relative;}
+.sp-add:hover{border-color:rgba(245,166,35,.6);background:rgba(245,166,35,.08);}
+.sp-add input{position:absolute;inset:0;opacity:0;cursor:pointer;}
+
+
+/* ══ QR PAYMENT ══ */
+.qr-methods-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:16px;}
+.qr-method-card{background:var(--card);border:1.5px solid var(--border2);border-radius:12px;overflow:hidden;transition:all .2s;}
+.qr-method-card:hover{border-color:rgba(245,166,35,.35);}
+.qr-method-card.active{border-color:var(--orange);box-shadow:0 0 16px rgba(245,166,35,.15);}
+.qrm-head{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border2);}
+.qrm-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.qrm-name{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:#fff;flex:1;}
+.qrm-toggle{position:relative;}
+.qrm-toggle input{display:none;}
+.qrm-toggle label{display:block;width:38px;height:20px;background:rgba(255,255,255,.1);border-radius:10px;cursor:pointer;transition:background .2s;position:relative;}
+.qrm-toggle label::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .2s;}
+.qrm-toggle input:checked+label{background:var(--green);}
+.qrm-toggle input:checked+label::after{left:20px;}
+.qrm-body{padding:12px 14px;}
+.qrm-label{font-size:9px;font-weight:800;letter-spacing:2px;color:rgba(245,166,35,.5);text-transform:uppercase;margin-bottom:6px;}
+.qrm-input{width:100%;background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.08);border-radius:8px;color:#fff;padding:8px 10px;font-family:'Barlow',sans-serif;font-size:12px;outline:none;transition:border-color .2s;margin-bottom:8px;}
+.qrm-input:focus{border-color:rgba(245,166,35,.4);}
+.qrm-qr-preview{width:100%;height:100px;background:rgba(255,255,255,.03);border:1px dashed rgba(255,255,255,.1);border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
+.qrm-qr-preview:hover{border-color:rgba(245,166,35,.4);background:rgba(245,166,35,.04);}
+.qrm-qr-preview img{max-width:100%;max-height:100%;object-fit:contain;}
+.qrm-qr-preview .qp-hint{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.qrm-qr-preview .qp-icon{font-size:24px;opacity:.4;}
+.qrm-qr-preview .qp-text{font-size:10px;color:rgba(255,255,255,.3);}
+.qrm-qr-preview input{position:absolute;inset:0;opacity:0;cursor:pointer;}
+.qrm-del-btn{width:100%;margin-top:8px;background:rgba(230,48,48,.07);border:1px solid rgba(230,48,48,.15);border-radius:7px;padding:6px;color:var(--red);font-size:11px;font-weight:700;cursor:pointer;transition:all .2s;}
+.qrm-del-btn:hover{background:rgba(230,48,48,.18);}
+.qr-add-btn{display:flex;align-items:center;gap:8px;background:var(--gold3);border:1.5px dashed rgba(245,166,35,.3);border-radius:12px;padding:14px 18px;color:var(--orange);font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;cursor:pointer;transition:all .2s;width:100%;}
+.qr-add-btn:hover{background:rgba(245,166,35,.12);border-color:var(--orange);}
+
+/* QR Popup trên cashier */
+.qr-send-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(8px);}
+.qr-send-modal.show{display:flex;}
+.qr-send-card{background:#111;border:2px solid rgba(245,166,35,.4);border-radius:20px;padding:28px;width:420px;text-align:center;animation:popIn .28s cubic-bezier(.4,0,.2,1);}
+.qr-send-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:4px;color:var(--orange);margin-bottom:6px;}
+.qr-send-amount{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:2px;color:#fff;margin-bottom:16px;text-shadow:0 0 20px rgba(245,166,35,.3);}
+.qr-method-tabs{display:flex;gap:6px;justify-content:center;margin-bottom:16px;flex-wrap:wrap;}
+.qr-method-tab{padding:6px 14px;border-radius:20px;border:1.5px solid rgba(255,255,255,.1);color:rgba(255,255,255,.4);font-size:12px;font-weight:700;cursor:pointer;transition:all .18s;}
+.qr-method-tab.active{background:var(--orange);color:#000;border-color:var(--orange);}
+.qr-img-wrap{width:220px;height:220px;margin:0 auto 14px;background:#fff;border-radius:12px;padding:10px;display:flex;align-items:center;justify-content:center;}
+.qr-img-wrap img{width:100%;height:100%;object-fit:contain;}
+.qr-img-placeholder{width:200px;height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#ccc;}
+.qr-method-name-display{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;color:rgba(255,255,255,.5);margin-bottom:6px;}
+.qr-account-display{font-size:13px;color:rgba(255,255,255,.4);margin-bottom:16px;}
+.qr-send-btns{display:flex;gap:8px;}
+.qr-send-to-station{flex:1;background:linear-gradient(135deg,var(--orange),#d48800);border:none;border-radius:11px;padding:12px;color:#000;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;cursor:pointer;transition:all .2s;}
+.qr-send-to-station:hover{transform:translateY(-1px);}
+.qr-close-btn{background:transparent;border:1px solid rgba(255,255,255,.12);border-radius:11px;padding:12px 16px;color:rgba(255,255,255,.4);font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;cursor:pointer;}
+
+
+/* ══ QR LOCK ══ */
+.qr-locked-overlay{position:absolute;inset:0;background:rgba(0,0,0,.75);border-radius:12px;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);z-index:10;cursor:pointer;transition:all .2s;}
+.qr-locked-overlay:hover{background:rgba(0,0,0,.6);}
+.qr-lock-icon{font-size:28px;margin-bottom:4px;}
+.qr-lock-text{font-size:11px;color:rgba(255,255,255,.5);letter-spacing:1px;}
+.qr-method-card{position:relative;}
+
+/* Lock modal */
+.qr-lock-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:99999;align-items:center;justify-content:center;backdrop-filter:blur(8px);}
+.qr-lock-modal.show{display:flex;}
+.qr-lock-card{background:#111;border:2px solid rgba(245,166,35,.4);border-radius:20px;padding:32px 38px;width:360px;text-align:center;animation:popIn .28s cubic-bezier(.4,0,.2,1);}
+.qr-lock-icon-big{font-size:44px;margin-bottom:12px;}
+.qr-lock-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:4px;color:var(--orange);margin-bottom:6px;}
+.qr-lock-sub{font-size:12px;color:rgba(255,255,255,.3);margin-bottom:22px;line-height:1.5;}
+.qr-pass-input{width:100%;background:rgba(255,255,255,.05);border:1.5px solid rgba(245,166,35,.25);border-radius:10px;color:#fff;padding:12px 16px;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:8px;text-align:center;outline:none;transition:all .2s;margin-bottom:10px;}
+.qr-pass-input:focus{border-color:var(--orange);box-shadow:0 0 16px rgba(245,166,35,.15);}
+.qr-pass-err{font-size:12px;color:var(--red);min-height:18px;margin-bottom:12px;font-weight:700;letter-spacing:1px;}
+.qr-lock-btns{display:flex;gap:8px;}
+.qr-lock-cancel{flex:0 0 auto;background:transparent;border:1px solid rgba(255,255,255,.1);border-radius:11px;padding:12px 16px;color:rgba(255,255,255,.4);font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;cursor:pointer;transition:all .2s;}
+.qr-lock-cancel:hover{border-color:var(--red);color:var(--red);}
+.qr-lock-confirm{flex:1;background:linear-gradient(135deg,var(--orange),#d48800);border:none;border-radius:11px;padding:12px;color:#000;font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:3px;cursor:pointer;box-shadow:0 4px 14px rgba(245,166,35,.3);transition:all .2s;}
+.qr-lock-confirm:hover{transform:translateY(-1px);}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-8px);}75%{transform:translateX(8px);}"}
+
 </style>
 </head>
 <body>
@@ -460,7 +668,7 @@ body{display:flex;flex-direction:column;height:100vh;overflow:hidden;}
   <div class="flex1"></div>
 
   <div class="hdr-right">
-    <div class="sound-btn" id="soundBtn" onclick="toggleSound()">🔔</div>
+    <div class="sound-btn" id="soundBtn" onclick="toggleSound()"><img src="data:image/png;base64,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" style="width:20px;height:20px;object-fit:contain"/></div>
     <button class="hdr-action-btn" onclick="clearDone()">Xóa đã xong</button>
     <button class="hdr-action-btn danger" onclick="confirmClearAll()">Xóa tất cả</button>
   </div>
@@ -473,6 +681,9 @@ body{display:flex;flex-direction:column;height:100vh;overflow:hidden;}
   </div>
   <div class="tab" id="tab-menu" onclick="switchTab('menu')">
     <span class="t-icon">🍽</span> QUẢN LÝ MENU
+  </div>
+  <div class="tab" id="tab-settings" onclick="switchTab('settings')">
+    <span class="t-icon">🎨</span> CÀI ĐẶT GIAO DIỆN
   </div>
 </div>
 
@@ -518,6 +729,134 @@ body{display:flex;flex-direction:column;height:100vh;overflow:hidden;}
   <button class="notif-close" onclick="closeNotif()">✕</button>
   <div class="notif-title" id="notifTitle">🔔 ORDER MỚI!</div>
   <div class="notif-body" id="notifBody"></div>
+</div>
+
+
+<!-- SETTINGS TAB -->
+<div class="settings-tab" id="settingsTab">
+  <div class="settings-scroll">
+
+
+    <!-- QUẢN LÝ DANH MỤC -->
+    <div class="sg-section cat-section">
+      <div class="sg-title">📂 QUẢN LÝ DANH MỤC MENU</div>
+      <div class="sg-item">
+        <div class="sg-item-hint" style="margin-bottom:12px;">Kéo thả để sắp xếp · Bấm tên để đổi tên · Nhấn + để thêm danh mục mới</div>
+        <div class="cat-list" id="catList"></div>
+        <div class="cat-add-row">
+          <input class="cat-icon-input" id="catIconInput" placeholder="🍽" maxlength="2"/>
+          <input class="cat-add-input" id="catNameInput" placeholder="Tên danh mục mới..." maxlength="30"/>
+          <button class="cat-add-btn" onclick="addCategory()">+ THÊM</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHÍ DỊCH VỤ -->
+    <div class="sg-section">
+      <div class="sg-title">💰 PHÍ DỊCH VỤ</div>
+      <div class="sg-item">
+        <div class="sg-item-hint" style="margin-bottom:12px;">Bật/tắt và chỉnh số tiền phí dịch vụ tính thêm cho mỗi đơn hàng</div>
+        <div class="fee-row">
+          <div class="fee-toggle">
+            <input type="checkbox" id="feeEnabled" onchange="updateFeePreview()"/>
+            <label for="feeEnabled"></label>
+          </div>
+          <span class="fee-label">Thu phí dịch vụ</span>
+          <div class="fee-input-wrap">
+            <input class="fee-amount" id="feeAmount" type="number" value="2000" min="0" max="999999" onchange="updateFeePreview()"/>
+            <span class="fee-unit">VND / đơn</span>
+          </div>
+        </div>
+        <div style="margin-top:10px;font-size:11px;color:rgba(255,255,255,.3);">
+          Khi tắt: phí dịch vụ = 0đ · Khi bật: cộng thêm vào mỗi đơn
+        </div>
+      </div>
+    </div>
+
+    <!-- LOGO QUÁN -->
+    <div class="sg-section">
+      <div class="sg-title">🖼 LOGO & THƯƠNG HIỆU</div>
+      <div class="sg-grid">
+        <div class="sg-item">
+          <div class="sg-item-label">Logo Quán</div>
+          <div class="sg-item-hint">Tỉ lệ 1:1 · Nền trong suốt · PNG khuyên dùng · Min 200×200px</div>
+          <div class="sg-upload" id="logoUpload" onclick="triggerUpload('logoFile')">
+            <img id="logoPreview" src="" style="display:none"/>
+            <div id="logoHint"><div class="su-icon">🏠</div><div class="su-text">Click để upload logo quán</div></div>
+            <input type="file" id="logoFile" accept="image/*" onchange="handleUpload(event,'logo')"/>
+          </div>
+        </div>
+        <div class="sg-item">
+          <div class="sg-item-label">Slogan Menu Order</div>
+          <div class="sg-item-hint">Hiển thị dưới chữ "MENU ORDER" trên màn hình máy trạm</div>
+          <input class="sg-input" id="sloganInput" placeholder="VD: Quán Nét Top 1 Quỳnh Lưu" value="Quán Nét Top 1 Quỳnh Lưu"/>
+        </div>
+      </div>
+    </div>
+
+    <!-- HERO SLIDES -->
+    <div class="sg-section">
+      <div class="sg-title">🎠 BANNER SLIDESHOW (Máy Trạm)</div>
+      <div class="sg-item" style="margin-bottom:14px;">
+        <div class="sg-item-label">Ảnh Banner Slide</div>
+        <div class="sg-item-hint">Tỉ lệ 16:5 (ví dụ 1280×400px) · JPG/PNG · Có thể thêm nhiều ảnh · Tự động chạy slideshow</div>
+        <div class="slider-preview" id="sliderPreview">
+          <div class="sp-add" onclick="triggerUpload('sliderFile')">
+            <div style="font-size:20px">➕</div>
+            <div style="font-size:10px;color:var(--text2);margin-top:3px;">Thêm ảnh</div>
+            <input type="file" id="sliderFile" accept="image/*" multiple onchange="handleSliderUpload(event)"/>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROMO BANNER -->
+    <div class="sg-section">
+      <div class="sg-title">🎁 ẢNH QUẢNG CÁO</div>
+      <div class="sg-grid">
+        <div class="sg-item">
+          <div class="sg-item-label">Ảnh "Ăn Ngon – Chill Hết Nấc" (Giỏ hàng)</div>
+          <div class="sg-item-hint">Tỉ lệ 2:1 · Ví dụ 540×270px · Hiển thị phía dưới nút ĐẶT MÓN</div>
+          <div class="sg-upload" id="promoUpload" onclick="triggerUpload('promoFile')">
+            <img id="promoPreview" src="" style="display:none"/>
+            <div id="promoHint"><div class="su-icon">📢</div><div class="su-text">Click để upload ảnh quảng cáo</div></div>
+            <input type="file" id="promoFile" accept="image/*" onchange="handleUpload(event,'promo')"/>
+          </div>
+        </div>
+        <div class="sg-item">
+          <div class="sg-item-label">Ảnh Phía Dưới Số Máy Trạm (Sidebar)</div>
+          <div class="sg-item-hint">Tỉ lệ 1:1 · Ví dụ 200×200px · Hiển thị ở sidebar máy trạm</div>
+          <div class="sg-upload" id="sidebarPromoUpload" onclick="triggerUpload('sidebarPromoFile')">
+            <img id="sidebarPromoPreview" src="" style="display:none"/>
+            <div id="sidebarPromoHint"><div class="su-icon">🖼</div><div class="su-text">Click để upload ảnh sidebar</div></div>
+            <input type="file" id="sidebarPromoFile" accept="image/*" onchange="handleUpload(event,'sidebarPromo')"/>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- QR THANH TOÁN -->
+    <div class="sg-section">
+      <div class="sg-title">📱 PHƯƠNG THỨC THANH TOÁN QR</div>
+      <div class="sg-item">
+        <div class="sg-item-hint" style="margin-bottom:14px;">
+          Upload ảnh QR tĩnh cho từng ví/ngân hàng · Bật/tắt từng phương thức · Khách quét trực tiếp hoặc Cashier gửi sang màn hình máy trạm
+        </div>
+        <div class="qr-methods-grid" id="qrMethodsGrid"></div>
+        <button class="qr-add-btn" onclick="addQRMethod()">
+          ➕ THÊM PHƯƠNG THỨC THANH TOÁN
+        </button>
+      </div>
+    </div>
+
+    <!-- LƯU & PHÁT -->
+    <div style="display:flex;gap:12px;align-items:center;">
+      <button class="sg-save-btn" onclick="saveAndBroadcast();saveFeeSettings();saveCategories()">💾 LƯU TẤT CẢ & GỬI MÁY TRẠM</button>
+      <span style="font-size:12px;color:var(--text2)" id="sgStatus"></span>
+    </div>
+
+  </div>
 </div>
 
 <!-- MODAL THÊM/SỬA MÓN -->
@@ -582,9 +921,12 @@ const fmt=n=>n.toLocaleString('vi-VN')+'đ';
 function switchTab(t){
   document.getElementById('ordersTab').style.display=t==='orders'?'flex':'none';
   document.getElementById('menuTab').classList.toggle('show',t==='menu');
+  document.getElementById('settingsTab').classList.toggle('show',t==='settings');
   document.getElementById('tab-orders').classList.toggle('active',t==='orders');
   document.getElementById('tab-menu').classList.toggle('active',t==='menu');
+  document.getElementById('tab-settings').classList.toggle('active',t==='settings');
   if(t==='menu') renderAdminGrid();
+  if(t==='settings') { loadSettings(); loadCategories(); loadQRMethods(); }
 }
 document.getElementById('ordersTab').style.display='flex';
 
@@ -644,9 +986,9 @@ function renderOrders(){
         <div class="oc-foot">
           <div class="oc-total">${fmt(order.total||0)}</div>
           <div class="oc-acts">
-            ${!isCall&&order.status==='pending'?`<button class="oa-btn btn-recv" onclick="setStatus(${order.id},'processing')">⚡ Nhận</button>`:''}
+            ${!isCall&&order.status==='pending'?`<button class="oa-btn btn-recv" onclick="setStatus(${order.id},'processing')">⚡ Nhận</button>`:''}${!isCall?`<button class="oa-btn" style="background:rgba(245,166,35,.1);color:var(--orange);border:1px solid rgba(245,166,35,.3)" onclick="openQRModal(${order.id},${order.total||0})">💳 QR</button>`:''}
             ${!isCall&&order.status==='processing'?`<button class="oa-btn btn-done2" onclick="setStatus(${order.id},'done')">✅ Xong</button>`:''}
-            <button class="oa-btn btn-del" onclick="delOrder(${order.id})">🗑</button>
+            <button class="oa-btn btn-del" onclick="delOrder(${order.id})"><img src="data:image/png;base64,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" style="width:16px;height:16px;object-fit:contain"/></button>
           </div>
         </div>
       </div>`;
@@ -808,6 +1150,449 @@ function saveItem(){
   saveMenu();renderAdminGrid();closeModal();
 }
 
+
+
+// ══ DANH MỤC & PHÍ ═══════════════════════════════════════
+let appCategories = [
+  {id:'all', name:'Tất Cả', icon:'⊞', locked:true},
+  {id:'Best Seller', name:'Best Seller', icon:'👑'},
+  {id:'Đồ Ăn', name:'Đồ Ăn', icon:'🍽'},
+  {id:'Mì & Phở', name:'Mì & Phở', icon:'🍜'},
+  {id:'Gà Rán', name:'Gà Rán', icon:'🍗'},
+  {id:'Đồ Ăn Vặt', name:'Đồ Ăn Vặt', icon:'🍟'},
+  {id:'Nước Uống', name:'Nước Uống', icon:'🥤'},
+  {id:'Tráng Miệng', name:'Tráng Miệng', icon:'🍧'},
+  {id:'Giờ Chơi', name:'Giờ Chơi', icon:'🎮'},
+];
+let feeSettings = { enabled: true, amount: 2000 };
+
+function renderCatList() {
+  const list = document.getElementById('catList');
+  if(!list) return;
+  list.innerHTML = appCategories.map((cat, i) => `
+    <div class="cat-item" draggable="${!cat.locked}" 
+         ondragstart="dragCat(event,${i})" ondragover="dragOverCat(event)" ondrop="dropCat(event,${i})">
+      <span class="cat-item-drag">${cat.locked ? '🔒' : '⠿'}</span>
+      <span class="cat-item-icon">${cat.icon}</span>
+      <div class="cat-item-name-wrap">
+        <input class="cat-item-name" value="${cat.name}" 
+               ${cat.locked ? 'readonly' : ''}
+               onchange="appCategories[${i}].name=this.value"
+               style="${cat.locked ? 'color:rgba(255,255,255,.4)' : ''}"/>
+      </div>
+      <span class="cat-item-count">${cat.locked ? '' : MENU.filter(m=>m.cat===cat.id).length + ' món'}</span>
+      ${!cat.locked ? `<button class="cat-item-del" onclick="deleteCategory(${i})">✕</button>` : '<span style="width:28px"></span>'}
+    </div>`).join('');
+}
+
+let dragSrcIdx = null;
+function dragCat(e, i) { dragSrcIdx = i; e.dataTransfer.effectAllowed='move'; }
+function dragOverCat(e) { e.preventDefault(); e.dataTransfer.dropEffect='move'; }
+function dropCat(e, i) {
+  e.preventDefault();
+  if(dragSrcIdx===null || dragSrcIdx===i) return;
+  const moved = appCategories.splice(dragSrcIdx, 1)[0];
+  appCategories.splice(i, 0, moved);
+  dragSrcIdx = null;
+  renderCatList();
+}
+
+function addCategory() {
+  const name = document.getElementById('catNameInput').value.trim();
+  const icon = document.getElementById('catIconInput').value.trim() || '🍽';
+  if(!name) { alert('Vui lòng nhập tên danh mục!'); return; }
+  appCategories.push({ id: name, name, icon });
+  document.getElementById('catNameInput').value = '';
+  document.getElementById('catIconInput').value = '';
+  renderCatList();
+  saveCategories();
+}
+
+function deleteCategory(i) {
+  const cat = appCategories[i];
+  const count = MENU.filter(m=>m.cat===cat.id).length;
+  if(count > 0) {
+    if(!confirm(`Danh mục "${cat.name}" có ${count} món.
+Xóa danh mục này sẽ không xóa món ăn.
+Bạn có chắc không?`)) return;
+  }
+  appCategories.splice(i, 1);
+  renderCatList();
+  saveCategories();
+}
+
+function saveCategories() {
+  if(window.aknet) {
+    window.aknet.saveCategories(appCategories).catch(()=>{});
+    // Broadcast categories đến máy trạm
+    window.aknet.broadcastCategories(appCategories).catch(()=>{});
+  }
+}
+
+function updateFeePreview() {
+  feeSettings.enabled = document.getElementById('feeEnabled').checked;
+  feeSettings.amount = parseInt(document.getElementById('feeAmount').value) || 0;
+}
+
+function saveFeeSettings() {
+  updateFeePreview();
+  if(window.aknet) {
+    window.aknet.saveFeeSettings(feeSettings).catch(()=>{});
+    window.aknet.broadcastFeeSettings(feeSettings).catch(()=>{});
+  }
+}
+
+async function loadCategories() {
+  if(window.aknet) {
+    try {
+      const cats = await window.aknet.getCategories();
+      if(cats && cats.length) appCategories = cats;
+      const fee = await window.aknet.getFeeSettings();
+      if(fee) {
+        feeSettings = fee;
+        document.getElementById('feeEnabled').checked = fee.enabled;
+        document.getElementById('feeAmount').value = fee.amount || 2000;
+      }
+    } catch(e){}
+  }
+  renderCatList();
+}
+
+
+
+// ══ QR LOCK ════════════════════════════════════════════════
+const QR_PASSWORD = 'Buinhuan98';
+let qrUnlocked = false;
+let qrLockCallback = null;
+
+function openQRLock(callback) {
+  if(qrUnlocked) { callback(); return; }
+  qrLockCallback = callback;
+  document.getElementById('qrPassInput').value = '';
+  document.getElementById('qrPassErr').textContent = '';
+  document.getElementById('qrLockModal').classList.add('show');
+  setTimeout(() => document.getElementById('qrPassInput').focus(), 100);
+}
+
+function closeQRLock() {
+  document.getElementById('qrLockModal').classList.remove('show');
+  qrLockCallback = null;
+}
+
+function verifyQRPass() {
+  const pass = document.getElementById('qrPassInput').value;
+  if(pass === QR_PASSWORD) {
+    qrUnlocked = true;
+    document.getElementById('qrLockModal').classList.remove('show');
+    if(qrLockCallback) { qrLockCallback(); qrLockCallback = null; }
+    // Tự khóa lại sau 10 phút
+    setTimeout(() => { qrUnlocked = false; }, 10 * 60 * 1000);
+  } else {
+    document.getElementById('qrPassErr').textContent = '❌ Mật khẩu không đúng!';
+    const inp = document.getElementById('qrPassInput');
+    inp.style.animation = 'shake 0.3s';
+    inp.value = '';
+    setTimeout(() => { inp.style.animation = ''; }, 300);
+  }
+}
+
+// ══ QR PAYMENT ════════════════════════════════════════════
+let qrMethods = [
+  { id: 'momo',    name: 'MoMo',     icon: '<img src="data:image/png;base64,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" style="width:28px;height:28px"/>', color: '#ae2d68', account: '', qrImage: '', enabled: true },
+  { id: 'zalopay', name: 'ZaloPay',  icon: '<img src="data:image/png;base64,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" style="width:28px;height:28px"/>', color: '#0068ff', account: '', qrImage: '', enabled: true },
+  { id: 'vnpay',   name: 'VNPay',    icon: '<img src="data:image/png;base64,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" style="width:28px;height:28px"/>', color: '#e01c1c', account: '', qrImage: '', enabled: true },
+  { id: 'bank',    name: 'Ngân Hàng',icon: '<img src="data:image/png;base64,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" style="width:28px;height:28px"/>', color: '#f5a623', account: '', qrImage: '', enabled: true },
+];
+let activeQRMethod = 0;
+
+function renderQRMethods() {
+  const grid = document.getElementById('qrMethodsGrid');
+  if(!grid) return;
+  grid.innerHTML = qrMethods.map((m, i) => `
+    <div class="qr-method-card ${m.enabled?'active':''}">
+      <div class="qrm-head">
+        <div class="qrm-icon" style="background:${m.color}22;border:1px solid ${m.color}44">${m.icon}</div>
+        <span class="qrm-name">${m.name}</span>
+        <div class="qrm-toggle">
+          <input type="checkbox" id="qrToggle${i}" ${m.enabled?'checked':''} onchange="toggleQRMethod(${i})"/>
+          <label for="qrToggle${i}"></label>
+        </div>
+      </div>
+      <div class="qrm-body">
+        <div class="qrm-label">Tên hiển thị</div>
+        <input class="qrm-input" value="${m.name}" placeholder="VD: MoMo - 0901234567"
+               onfocus="if(!qrUnlocked){this.blur();openQRLock(()=>this.focus());}" onchange="qrMethods[${i}].name=this.value"/>
+        <div class="qrm-label">Số tài khoản / SĐT</div>
+        <input class="qrm-input" value="${m.account}" placeholder="VD: 0901234567"
+               onfocus="if(!qrUnlocked){this.blur();openQRLock(()=>this.focus());}" onchange="qrMethods[${i}].account=this.value"/>
+        <div class="qrm-label">Ảnh mã QR</div>
+        <div class="qrm-qr-preview" onclick="triggerQRUpload(${i},'qrFile${i}')">
+          ${m.qrImage 
+            ? `<img src="${m.qrImage}" alt="QR"/>` 
+            : `<div class="qp-hint"><div class="qp-icon">📷</div><div class="qp-text">Click để upload ảnh QR</div></div>`}
+          <input type="file" id="qrFile${i}" accept="image/*" onchange="handleQRUpload(event,${i})"/>
+        </div>
+        ${qrMethods.length > 1 ? `<button class="qrm-del-btn" onclick="deleteQRMethod(${i})">🗑 XÓA PHƯƠNG THỨC NÀY</button>` : ''}
+      </div>
+    </div>`).join('');
+}
+
+function triggerQRUpload(i, fileId) {
+  document.getElementById(fileId).click();
+}
+
+function handleQRUpload(e, i) {
+  // Reset file input nếu chưa unlock (sẽ re-trigger sau khi unlock)
+  if(!qrUnlocked) {
+    e.target.value = '';
+    openQRLock(() => { document.getElementById('qrFile'+i).click(); });
+    return;
+  }
+  const file = e.target.files[0]; if(!file) return;
+  if(file.size > 3*1024*1024) { alert('Ảnh quá lớn! Tối đa 3MB'); return; }
+  const reader = new FileReader();
+  reader.onload = ev => {
+    qrMethods[i].qrImage = ev.target.result;
+    renderQRMethods();
+  };
+  reader.readAsDataURL(file);
+}
+
+function toggleQRMethod(i) {
+  const cb = document.getElementById('qrToggle'+i);
+  if(!qrUnlocked) {
+    cb.checked = !cb.checked; // revert
+    openQRLock(() => { cb.checked = !cb.checked; qrMethods[i].enabled = cb.checked; renderQRMethods(); });
+    return;
+  }
+  qrMethods[i].enabled = document.getElementById('qrToggle'+i).checked;
+  renderQRMethods();
+}
+
+function deleteQRMethod(i) {
+  openQRLock(() => {
+  if(!confirm('Xóa phương thức thanh toán này?')) return;
+  qrMethods.splice(i, 1);
+  renderQRMethods();
+  });
+}
+
+function addQRMethod() {
+  openQRLock(() => {
+  qrMethods.push({
+    id: 'custom_' + Date.now(),
+    name: 'Phương Thức Mới',
+    icon: '💳', color: '#888888',
+    account: '', qrImage: '', enabled: true
+  });
+  renderQRMethods();
+  // Scroll đến cuối
+  setTimeout(() => {
+    const grid = document.getElementById('qrMethodsGrid');
+    if(grid) grid.lastElementChild?.scrollIntoView({ behavior: 'smooth' });
+  }, 100);
+  });
+}
+
+// ── Modal gửi QR từ Cashier ──
+function openQRModal(orderId, amount) {
+  const enabledMethods = qrMethods.filter(m => m.enabled);
+  if(!enabledMethods.length) { alert('Chưa bật phương thức thanh toán nào!'); return; }
+  
+  document.getElementById('qrSendAmount').textContent = amount.toLocaleString('vi-VN') + 'đ';
+  activeQRMethod = 0;
+  
+  // Build tabs
+  const tabs = document.getElementById('qrMethodTabs');
+  tabs.innerHTML = enabledMethods.map((m, i) => `
+    <div class="qr-method-tab ${i===0?'active':''}" onclick="selectQRMethod(${i})">${m.icon} ${m.name}</div>
+  `).join('');
+  
+  // Hiện QR đầu tiên
+  showQRMethod(0);
+  document.getElementById('qrSendModal').classList.add('show');
+  
+  // Lưu orderId để gửi sau
+  document.getElementById('qrSendModal').dataset.orderId = orderId || '';
+}
+
+function selectQRMethod(i) {
+  activeQRMethod = i;
+  document.querySelectorAll('.qr-method-tab').forEach((t,j) => t.classList.toggle('active', j===i));
+  showQRMethod(i);
+}
+
+function showQRMethod(i) {
+  const enabledMethods = qrMethods.filter(m => m.enabled);
+  const m = enabledMethods[i];
+  if(!m) return;
+  
+  const img = document.getElementById('qrDisplayImg');
+  const placeholder = document.getElementById('qrPlaceholder');
+  
+  if(m.qrImage) {
+    img.src = m.qrImage;
+    img.style.display = 'block';
+    placeholder.style.display = 'none';
+  } else {
+    img.style.display = 'none';
+    placeholder.style.display = 'flex';
+  }
+  
+  document.getElementById('qrMethodNameDisplay').textContent = m.name;
+  document.getElementById('qrAccountDisplay').textContent = m.account ? '📱 ' + m.account : '';
+}
+
+function closeQRModal() {
+  document.getElementById('qrSendModal').classList.remove('show');
+}
+
+function sendQRToStation() {
+  const enabledMethods = qrMethods.filter(m => m.enabled);
+  const m = enabledMethods[activeQRMethod];
+  if(!m) return;
+  
+  if(window.aknet) {
+    window.aknet.broadcastSettings({
+      type: 'show_qr',
+      method: m,
+      amount: document.getElementById('qrSendAmount').textContent
+    }).catch(()=>{});
+  }
+  
+  showToast('📡 Đã gửi QR đến máy trạm!');
+  closeQRModal();
+}
+
+async function loadQRMethods() {
+  if(window.aknet) {
+    try {
+      const s = await window.aknet.getSettings();
+      if(s && s.qrMethods && s.qrMethods.length) {
+        qrMethods = s.qrMethods;
+      }
+    } catch(e){}
+  }
+  renderQRMethods();
+}
+
+// Override saveAndBroadcast để lưu cả QR
+const _origSave = typeof saveAndBroadcast !== 'undefined' ? saveAndBroadcast : null;
+
+// ══ SETTINGS ══════════════════════════════════════════════
+let settings = { logo:'', slogan:'Quán Nét Top 1 Quỳnh Lưu', slides:[], promo:'', sidebarPromo:'' };
+
+function triggerUpload(id){ document.getElementById(id).click(); }
+
+function handleUpload(e, type){
+  const file = e.target.files[0]; if(!file) return;
+  if(file.size > 3*1024*1024){ alert('Ảnh quá lớn! Tối đa 3MB'); return; }
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const data = ev.target.result;
+    if(type==='logo'){
+      settings.logo = data;
+      document.getElementById('logoPreview').src=data;
+      document.getElementById('logoPreview').style.display='block';
+      document.getElementById('logoHint').style.display='none';
+      document.getElementById('logoUpload').classList.add('has-img');
+    } else if(type==='promo'){
+      settings.promo = data;
+      document.getElementById('promoPreview').src=data;
+      document.getElementById('promoPreview').style.display='block';
+      document.getElementById('promoHint').style.display='none';
+      document.getElementById('promoUpload').classList.add('has-img');
+    } else if(type==='sidebarPromo'){
+      settings.sidebarPromo = data;
+      document.getElementById('sidebarPromoPreview').src=data;
+      document.getElementById('sidebarPromoPreview').style.display='block';
+      document.getElementById('sidebarPromoHint').style.display='none';
+      document.getElementById('sidebarPromoUpload').classList.add('has-img');
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function handleSliderUpload(e){
+  const files = Array.from(e.target.files);
+  files.forEach(file => {
+    if(file.size > 3*1024*1024) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      settings.slides.push(ev.target.result);
+      renderSliderPreview();
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderSliderPreview(){
+  const wrap = document.getElementById('sliderPreview');
+  let html = settings.slides.map((src,i) => `
+    <div class="sp-item">
+      <img src="${src}" alt="slide ${i+1}"/>
+      <button class="sp-del" onclick="removeSlide(${i})">✕</button>
+    </div>`).join('');
+  html += `<div class="sp-add" onclick="triggerUpload('sliderFile')">
+    <div style="font-size:20px">➕</div>
+    <div style="font-size:10px;color:var(--text2);margin-top:3px;">Thêm ảnh</div>
+    <input type="file" id="sliderFile" accept="image/*" multiple onchange="handleSliderUpload(event)"/>
+  </div>`;
+  wrap.innerHTML = html;
+}
+
+function removeSlide(i){
+  settings.slides.splice(i,1);
+  renderSliderPreview();
+}
+
+async function saveAndBroadcast(){
+  settings.slogan = document.getElementById('sloganInput').value;
+  settings.qrMethods = qrMethods;
+  const status = document.getElementById('sgStatus');
+  status.textContent = 'Đang lưu...';
+  status.style.color = 'var(--text2)';
+  
+  // Lưu settings vào file
+  if(window.aknet){
+    try{ await window.aknet.saveSettings(settings); }catch(e){}
+  }
+  
+  // Gửi đến tất cả máy trạm qua WebSocket
+  if(window.aknet){
+    try{ await window.aknet.broadcastSettings(settings); }catch(e){}
+  }
+  
+  status.textContent = '✅ Đã lưu và gửi tới máy trạm!';
+  status.style.color = 'var(--green)';
+  setTimeout(()=>status.textContent='', 4000);
+}
+
+// Load settings đã lưu
+async function loadSettings(){
+  if(window.aknet){
+    try{
+      const s = await window.aknet.getSettings();
+      if(s){
+        settings = {...settings, ...s};
+        if(s.slogan) document.getElementById('sloganInput').value = s.slogan;
+        if(s.logo){
+          document.getElementById('logoPreview').src=s.logo;
+          document.getElementById('logoPreview').style.display='block';
+          document.getElementById('logoHint').style.display='none';
+          document.getElementById('logoUpload').classList.add('has-img');
+        }
+        if(s.slides && s.slides.length) renderSliderPreview();
+        if(s.promo){
+          document.getElementById('promoPreview').src=s.promo;
+          document.getElementById('promoPreview').style.display='block';
+          document.getElementById('promoHint').style.display='none';
+        }
+      }
+    }catch(e){}
+  }
+}
+
 // ══ IPC ═══════════════════════════════════════════════════
 if(window.aknet){
   window.aknet.onServerInfo(info=>{
@@ -847,5 +1632,46 @@ if(window.aknet){
   renderOrders();
 })();
 </script>
+
+<!-- QR SEND MODAL (Cashier gửi sang máy trạm) -->
+<div class="qr-send-modal" id="qrSendModal">
+  <div class="qr-send-card">
+    <div class="qr-send-title">📱 THANH TOÁN QR</div>
+    <div class="qr-send-amount" id="qrSendAmount">0đ</div>
+    <div class="qr-method-tabs" id="qrMethodTabs"></div>
+    <div class="qr-img-wrap">
+      <img id="qrDisplayImg" src="" style="display:none"/>
+      <div class="qr-img-placeholder" id="qrPlaceholder">
+        <div style="font-size:40px">📷</div>
+        <div style="font-size:12px">Chưa có ảnh QR</div>
+      </div>
+    </div>
+    <div class="qr-method-name-display" id="qrMethodNameDisplay"></div>
+    <div class="qr-account-display" id="qrAccountDisplay"></div>
+    <div class="qr-send-btns">
+      <button class="qr-close-btn" onclick="closeQRModal()">ĐÓNG</button>
+      <button class="qr-send-to-station" onclick="sendQRToStation()">📡 GỬI MÁY TRẠM</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- QR LOCK MODAL -->
+<div class="qr-lock-modal" id="qrLockModal">
+  <div class="qr-lock-card">
+    <div class="qr-lock-icon-big">🔐</div>
+    <div class="qr-lock-title">BẢO MẬT</div>
+    <div class="qr-lock-sub">Nhập mật khẩu để chỉnh sửa<br>thông tin thanh toán QR</div>
+    <input class="qr-pass-input" type="password" id="qrPassInput"
+           placeholder="••••••••" maxlength="20"
+           onkeydown="if(event.key==='Enter')verifyQRPass()"/>
+    <div class="qr-pass-err" id="qrPassErr"></div>
+    <div class="qr-lock-btns">
+      <button class="qr-lock-cancel" onclick="closeQRLock()">HỦY</button>
+      <button class="qr-lock-confirm" onclick="verifyQRPass()">🔓 MỞ KHÓA</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
